@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/reminders</url>
+    <description>Generate the email reminders</description>
+    <schedule>every monday 10:00</schedule>
+    <timezone>Europe/London</timezone>
+  </cron>
+</cronentries>

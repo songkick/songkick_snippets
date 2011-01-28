@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+	<!-- Security: require sign-in to the Songkick domain -->
+	<security-constraint>
+		<web-resource-collection>
+			<url-pattern>/snippets/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>*</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<!-- Servlets -->
+
+	<!-- GWT RPC server -->
+	<servlet>
+		<servlet-name>adminServlet</servlet-name>
+		<servlet-class>com.songkick.snippets.server.AdminServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>adminServlet</servlet-name>
+		<url-pattern>/sksnippets/admin</url-pattern>
+	</servlet-mapping>
+
+	<!-- Servlet to show last week's snippets -->
+	<servlet>
+		<servlet-name>Snippets</servlet-name>
+		<servlet-class>com.songkick.snippets.servlet.SnippetsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Snippets</servlet-name>
+		<url-pattern>/snippets</url-pattern>
+	</servlet-mapping>
+
+	<!-- Servlet called by cron job to send snippet reminders -->
+	<servlet>
+		<servlet-name>Reminder</servlet-name>
+		<servlet-class>com.songkick.snippets.servlet.ReminderServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Reminder</servlet-name>
+		<url-pattern>/reminders</url-pattern>
+		<security-constraint>
+			<auth-constraint>
+				<role-name>admin</role-name>
+			</auth-constraint>
+		</security-constraint>
+	</servlet-mapping>
+
+	<!-- Servlet to handle incoming emails -->
+	<servlet>
+		<servlet-name>mailhandler</servlet-name>
+		<servlet-class>com.songkick.snippets.servlet.MailHandlerServlet</servlet-class>
+		<!-- <servlet-class>com.songkick.snippets.servlet.TestEmailServlet</servlet-class> -->
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>mailhandler</servlet-name>
+		<url-pattern>/_ah/mail/*</url-pattern>
+	</servlet-mapping>
+	<security-constraint>
+		<web-resource-collection>
+			<url-pattern>/_ah/mail/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>SKSnippets.html</welcome-file>
+	</welcome-file-list>
+
+</web-app>
