@@ -1,19 +1,25 @@
 package com.songkick.snippets.logic;
 
+import static com.google.appengine.api.taskqueue.TaskOptions.Builder.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.appengine.api.taskqueue.TaskOptions.Method;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Query;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
+import com.songkick.snippets.util.Debug;
 
 public class ReminderHandler {
-	private static final Logger log = Logger.getLogger(ReminderHandler.class
-			.getName());
-	private MailSender mailSender = new MailSender();
+	public enum MailType {
+		FirstReminder, SecondReminder
+	};
 
 	public ReminderHandler() {
 		ObjectifyService.register(Snippet.class);
@@ -21,45 +27,99 @@ public class ReminderHandler {
 	}
 
 	/**
-	 * Find all the users who don't have a snippet for this week and send each
-	 * of them a reminder email
+	 * Create a task queue entry to send a single email
+	 * 
+	 * @param email
 	 */
-	public void generateReminders() {
+	private void addEmailToQueue(String email, MailType mailType) {
+		// Enqueue the reminders
+		Queue queue = QueueFactory.getQueue("reminder-queue");
+
+		String url = "/reminderqueue?emaillist=" + cleanEmailAddress(email);
+
+		url += "&type=" + mailType;
+
+		TaskOptions to = withUrl(url).method(Method.GET);
+
+		Debug.log("Queueing to URL " + to.getUrl());
+		queue.add(to);
+	}
+
+	private String cleanEmailAddress(String email) {
+		int addressStart = email.indexOf('<');
+		if (addressStart == -1) {
+			return email;
+		}
+
+		email = email.substring(addressStart + 1, email.length());
+		
+		int addressEnd = email.indexOf('>');
+		if (addressEnd == -1) {
+			return email;
+		}
+
+		return email.substring(0, addressEnd);
+	}
+
+	private void queueRemindersTo(List<User> users, MailType mailType) {
+		Debug.log("Users to remind: " + users);
+
+		for (User user : users) {
+			addEmailToQueue(user.getEmailAddress(), mailType);
+			if (user.getOtherEmails() != null) {
+				for (String email : user.getOtherEmails()) {
+					addEmailToQueue(email, mailType);
+				}
+			}
+		}
+	}
+
+	public void testReminders() {
+		List<User> users = new ArrayList<User>();
+
+		Objectify ofy = ObjectifyService.begin();
+		Query<User> q = ofy.query(User.class);
+
+		for (User user : q) {
+			if (user.getEmailAddress().contains("crow")) {
+				users.add(user);
+			}
+		}
+
+		queueRemindersTo(users, MailType.FirstReminder);
+	}
+
+	public List<User> getUsersWithoutSnippet(Long week) {
 		List<User> users = getUsers();
-
-		log.severe("List of all users: " + users);
-
-		Long currentWeek = DateHandler.getCurrentWeek();
-		List<User> withCurrentSnippets = getUsersWithSnippetFor(currentWeek);
-
-		log.severe("List of users with snippets for week " + currentWeek + ": "
-				+ withCurrentSnippets);
+		List<User> withCurrentSnippets = getUsersWithSnippetFor(week);
 
 		List<User> toRemind = new ArrayList<User>();
 
 		for (User user : users) {
 			boolean hasSnippet = false;
-			// log.severe("Checking user: " + user);
 			for (User withSnippetUser : withCurrentSnippets) {
-				// log.severe("Checking against user with snippet: " +
-				// withSnippetUser);
-				if (user.getId() == withSnippetUser.getId()) {
-					// log.severe("The user has a snippet");
+				if (user.getId().equals(withSnippetUser.getId())) {
 					hasSnippet = true;
 				}
 			}
 
 			if (!hasSnippet) {
-				// log.severe("hasSnippet is false, adding to list");
 				toRemind.add(user);
 			}
 		}
 
-		log.severe("Users to remind: " + toRemind);
+		return toRemind;
+	}
 
-		for (User remindUser : toRemind) {
-			remindUser(remindUser);
-		}
+	/**
+	 * Find all the users who don't have a snippet for this week and send each of
+	 * them a reminder email
+	 */
+	public void generateReminders(MailType type) {
+		Long currentWeek = DateHandler.getCurrentWeek();
+		List<User> toRemind = getUsersWithoutSnippet(currentWeek);
+
+		queueRemindersTo(toRemind, type);
 	}
 
 	/**
@@ -90,34 +150,20 @@ public class ReminderHandler {
 	 * 
 	 * @param emailAddress
 	 */
-	public void remindUser(String emailAddress) {
+	public void remindUser(String emailAddress, MailType type) {
+		Debug.log("remindUser. emailAddress: " + emailAddress);
 		Objectify ofy = ObjectifyService.begin();
 		Query<User> q = ofy.query(User.class);
 
+		Debug.log("Found matching users: " + q.list());
+		List<User> users = new ArrayList<User>();
 		for (User user : q) {
 			if (user.getEmailAddress().equals(emailAddress)) {
-				remindUser(user);
+				users.add(user);
 			}
 		}
-	}
 
-	/**
-	 * Send reminder to a user
-	 * 
-	 * @param user
-	 */
-	private void remindUser(User user) {
-		log.severe("Sending reminder email to " + user.getEmailAddress());
-		mailSender
-				.sendEmail(
-						user.getEmailAddress(),
-						"Snippet reminder",
-						"This is your automated snippet nag email. You haven't submitted a snippet email yet this week. "
-								+ "Please reply to this message with your snippet by midnight on Monday.\n\n"
-								+ "From Tuesday morning you can "
-								+ "access the past week's snippet report at http://sksnippet.appspot.com/snippets.\n\n"
-								+ "For more details about writing snippets, see: https://sites.google.com/a/songkick.com/weekly-snippets/home\n\n"
-								+ "Thanks,\n\nThe Songkick Snippet System");
+		queueRemindersTo(users, type);
 	}
 
 	/**
@@ -135,5 +181,4 @@ public class ReminderHandler {
 
 		return users;
 	}
-
 }

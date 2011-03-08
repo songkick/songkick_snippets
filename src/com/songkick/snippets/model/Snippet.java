@@ -21,6 +21,12 @@ public class Snippet {
 		// Needed for datastore
 	}
 
+	public Snippet(User user, String snippetText) {
+		assert (snippetText != null);
+		setUser(new Key<User>(User.class, user.getId()));
+		setSnippetText(snippetText);
+	}
+
 	public Key<User> getUser() {
 		return user;
 	}
@@ -35,11 +41,6 @@ public class Snippet {
 
 	public void setUser(Key<User> user) {
 		this.user = user;
-	}
-
-	public Snippet(User user, String snippetText) {
-		setUser(new Key<User>(User.class, user.getId()));
-		setSnippetText(snippetText);
 	}
 
 	public String getSnippetText() {
@@ -60,5 +61,9 @@ public class Snippet {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+
+	public String toString() {
+		return "Week " + weekNumber + ": " + snippetText;
 	}
 }

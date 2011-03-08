@@ -4,24 +4,38 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.songkick.snippets.shared.dao.UserDAO;
 
 /**
  * The client side stub for the RPC service.
  */
 @RemoteServiceRelativePath("admin")
 public interface AdminService extends RemoteService {
-	List<String> getUserList() throws IllegalArgumentException;
+	List<UserDAO> getUserList() throws IllegalArgumentException;
 	
-	void addUser(String email);
+	void addUser(UserDAO dao);
+	void updateUser(UserDAO dao);
 	
-	void deleteUser(String email);	
+	void deleteUser(UserDAO dao);	
 	Long getCurrentWeek();
 	
-	boolean validateUser(String username, String password);
+	void remindUser(UserDAO dao);
 	
-	void remindUser(String email);
+	List<String> getSnippets(UserDAO dao);
 	
-	List<String> getSnippets(String email);
+	String isValidAdmin(String redirectURL);
 	
-	boolean isValidAdmin();
+	void remindUsers();
+	
+	List<UserDAO> getUsersToRemind();
+	
+	void addSnippet(UserDAO dao, String snippet, int week);
+	
+	public void replaceSnippet(UserDAO dao, String snippet, Long week);
+	
+	String getLog();
+	
+	public void getIMAPEmail();
+	
+	public String getSnippet(UserDAO user, Long weekNumber);
 }

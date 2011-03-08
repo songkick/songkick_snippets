@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
@@ -20,9 +19,6 @@ import com.songkick.snippets.model.User;
  * @author dancrow
  */
 public class SnippetPresentation {
-	private static final Logger log = Logger
-			.getLogger(SnippetPresentation.class.getName());
-
 	public SnippetPresentation() {
 		ObjectifyService.register(Snippet.class);
 		ObjectifyService.register(User.class);
@@ -83,8 +79,7 @@ public class SnippetPresentation {
 
 		User user = userList.get(0);
 
-		Query<Snippet> snippetQuery = ofy.query(Snippet.class).filter("user",
-				user);
+		Query<Snippet> snippetQuery = ofy.query(Snippet.class).filter("user", user);
 
 		String html = "<html>";
 		html += generateSnippetHTML(user, snippetQuery.list());
@@ -111,7 +106,6 @@ public class SnippetPresentation {
 	 * @return
 	 */
 	public String getSnippetsHTML(Long week) {
-		log.severe("getting snippet HTML");
 		List<SnippetInMemory> snippets = getSnippets(week);
 		List<User> users = getUsers();
 		List<User> usersWithSnippet = new ArrayList<User>();
@@ -157,8 +151,7 @@ public class SnippetPresentation {
 				+ " to " + DateHandler.weekToDate(week + 1) + "</h1>";
 		text += "<body>";
 		for (User user : usersWithSnippet) {
-			text += "<p>" + generateSnippetHTML(user, user.getSnippetList())
-					+ "</p>";
+			text += "<p>" + generateSnippetHTML(user, user.getSnippetList()) + "</p>";
 		}
 
 		if (usersWithoutSnippet.size() > 0) {
@@ -183,8 +176,12 @@ public class SnippetPresentation {
 				+ "</h2>";
 
 		for (Snippet snippet : snippets) {
-			html += "<h3>Sent: " + snippet.getDate() + "</h3>";
-			html += "<p>" + snippet.getSnippetText() + "</p>";
+			if (snippet.getSnippetText() != null) {
+				html += "<p>" + snippet.getSnippetText() + "</p>";
+				if (snippet.getDate() != null) {
+					html += "<h3>Sent: " + snippet.getDate() + "</h3>";
+				}
+			}
 		}
 
 		return html;
@@ -198,15 +195,12 @@ public class SnippetPresentation {
 	private List<SnippetInMemory> getSnippets(Long week) {
 		Objectify ofy = ObjectifyService.begin();
 		Query<Snippet> q = ofy.query(Snippet.class).filter("weekNumber", week);
-		log.severe("Query executed");
 		List<SnippetInMemory> snippets = new ArrayList<SnippetInMemory>();
 		for (Snippet snippet : q) {
-			log.severe("Adding snippet " + snippet);
 			SnippetInMemory sim = new SnippetInMemory(snippet);
 			sim.prep();
 			snippets.add(sim);
 		}
-		log.severe("All snippets added");
 		return snippets;
 	}
 }

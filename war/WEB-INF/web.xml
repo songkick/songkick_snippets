@@ -36,7 +36,7 @@
 		<url-pattern>/snippets</url-pattern>
 	</servlet-mapping>
 
-	<!-- Servlet called by cron job to send snippet reminders -->
+	<!-- Servlet called by cron job to send first snippet reminders -->
 	<servlet>
 		<servlet-name>Reminder</servlet-name>
 		<servlet-class>com.songkick.snippets.servlet.ReminderServlet</servlet-class>
@@ -49,6 +49,31 @@
 				<role-name>admin</role-name>
 			</auth-constraint>
 		</security-constraint>
+	</servlet-mapping>
+	
+	<!-- Servlet called by cron job to send second snippet reminders -->
+	<servlet>
+		<servlet-name>Reminder2</servlet-name>
+		<servlet-class>com.songkick.snippets.servlet.Reminder2Servlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Reminder2</servlet-name>
+		<url-pattern>/reminders2</url-pattern>
+		<security-constraint>
+			<auth-constraint>
+				<role-name>admin</role-name>
+			</auth-constraint>
+		</security-constraint>
+	</servlet-mapping>
+
+	<!-- Task Queue servlet to handle distributed email sending -->
+	<servlet>
+		<servlet-name>ReminderTaskQueue</servlet-name>
+		<servlet-class>com.songkick.snippets.servlet.ReminderTaskQueue</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ReminderTaskQueue</servlet-name>
+		<url-pattern>/reminderqueue</url-pattern>
 	</servlet-mapping>
 
 	<!-- Servlet to handle incoming emails -->
@@ -69,6 +94,17 @@
 			<role-name>admin</role-name>
 		</auth-constraint>
 	</security-constraint>
+	
+	
+	<!-- Mail handling API servlet -->
+	<servlet>
+		<servlet-name>mailapi</servlet-name>
+		<servlet-class>com.songkick.snippets.servlet.MailAPIServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>mailapi</servlet-name>
+		<url-pattern>/mailapi/*</url-pattern>
+	</servlet-mapping>
 
 	<!-- Default page to serve -->
 	<welcome-file-list>

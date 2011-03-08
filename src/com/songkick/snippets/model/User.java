@@ -9,9 +9,11 @@ public class User {
 	@Id
 	private Long id = null;
 	private String emailAddress = null;
+	private List<String> otherEmails = new ArrayList<String>();
 	private String name = null;
 	private String group = null;
 	private List<Snippet> snippetList = null;
+	private boolean isAdmin = false;
 
 	public User() {
 		// Needed for datastore
@@ -43,6 +45,20 @@ public class User {
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
 	}
+	
+	public boolean matchesEmail(String email) {
+		if (email.contains(emailAddress)) {
+			return true;
+		}
+		
+		for (String other: otherEmails) {
+			if (email.contains(other)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	public String getName() {
 		return name;
@@ -59,16 +75,31 @@ public class User {
 	public void setGroup(String group) {
 		this.group = group;
 	}
-	
+
 	public String getBestName() {
-		if (name!=null) {
+		if (name != null) {
 			return name;
 		}
 		return emailAddress;
+	}
+
+	public void setOtherEmails(List<String> otherEmails) {
+		this.otherEmails = otherEmails;
+	}
+
+	public List<String> getOtherEmails() {
+		return otherEmails;
 	}
 
 	public String toString() {
 		return "id=" + id + " email: " + emailAddress;
 	}
 
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 }

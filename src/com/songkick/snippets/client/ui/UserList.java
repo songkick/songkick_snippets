@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.songkick.snippets.client.AdminService;
 import com.songkick.snippets.client.AdminServiceAsync;
+import com.songkick.snippets.shared.dao.UserDAO;
 
 /**
  * Handle user list and associated controls
@@ -28,6 +29,9 @@ public class UserList extends VerticalPanel {
 
 	private ListBox userListBox = new ListBox();
 	private TextBox infoTextBox = new TextBox();
+	private Button addSnippetButton = UI.makeButton("Add");
+	private Button editSnippetsButton = UI.makeButton("Edit");
+	private List<UserDAO> users = null;
 
 	public UserList() {
 		createUI();
@@ -38,25 +42,39 @@ public class UserList extends VerticalPanel {
 	private void createUI() {
 		this.setStylePrimaryName("UserList");
 		
-		Button sendReminderButton = new Button("Remind");
-		Button addUserButton = new Button("Add");
-		Button deleteUserButton = new Button("Delete");
-		Button viewSnippetButton = new Button("View snippets");
-		HorizontalPanel buttonPanel = new HorizontalPanel();
+		Button sendReminderButton = UI.makeButton("Remind");
+		Button addUserButton = UI.makeButton("Add");
+		Button editUserButton = UI.makeButton("Edit");
+		Button deleteUserButton = UI.makeButton("Delete");
+		Button viewSnippetButton = UI.makeButton("View");
+		HorizontalPanel topButtonPanel = new HorizontalPanel();
+		HorizontalPanel bottomButtonPanel = new HorizontalPanel();
 
-		add(new Label("Current users:"));
+		add(UI.makeLabel("Current users:", "headerLabel"));
 		add(userListBox);
-		buttonPanel.add(sendReminderButton);
-		buttonPanel.add(addUserButton);
-		buttonPanel.add(deleteUserButton);
-		buttonPanel.add(viewSnippetButton);
-		add(buttonPanel);
+		topButtonPanel.add(new Label("Users:"));
+		topButtonPanel.add(addUserButton);
+		topButtonPanel.add(editUserButton);
+		topButtonPanel.add(deleteUserButton);
+		topButtonPanel.add(sendReminderButton);
+		bottomButtonPanel.add(new Label("Snippets:"));
+		bottomButtonPanel.add(viewSnippetButton);
+		bottomButtonPanel.add(editSnippetsButton);
+		bottomButtonPanel.add(addSnippetButton);
+		add(topButtonPanel);
+		add(bottomButtonPanel);
 		add(infoTextBox);
 
 		addUserButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				new AddUserDialog(UserList.this);
+				new AddUserDialog(UserList.this, null);
+			}
+		});
+		editUserButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				editUser();
 			}
 		});
 		deleteUserButton.addClickHandler(new ClickHandler() {
@@ -77,6 +95,18 @@ public class UserList extends VerticalPanel {
 				viewSnippets();
 			}
 		});
+		editSnippetsButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				editSnippets();
+			}
+		});
+		addSnippetButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				addSnippet();
+			}
+		});
 
 		userListBox.setVisibleItemCount(20);
 		userListBox.setSize("100%", "100%");
@@ -95,8 +125,17 @@ public class UserList extends VerticalPanel {
 		t.schedule(5000);
 	}
 	
+	private void addSnippet() {
+		UserDAO user = getSelectedUser();
+		if (user == null) {
+			return;
+		}
+		AddSnippetDialog dialog = new AddSnippetDialog(user);
+		dialog.showRelativeTo(addSnippetButton);
+	}
+	
 	private void viewSnippets() {
-		String user = getSelectedUser();
+		UserDAO user = getSelectedUser();
 		if (user == null) {
 			return;
 		}
@@ -115,9 +154,20 @@ public class UserList extends VerticalPanel {
 				viewer.center();
 			}});
 	}
+	
+	private void editSnippets() {
+		UserDAO user = getSelectedUser();
+		if (user == null) {
+			return;
+		}
+		
+		EditSnippetsDialog dialog = new EditSnippetsDialog(user);
+		
+		dialog.showRelativeTo(editSnippetsButton);
+	}
 
 	private void remindUser() {
-		String user = getSelectedUser();
+		final UserDAO user = getSelectedUser();
 		if (user == null) {
 			return;
 		}
@@ -130,27 +180,27 @@ public class UserList extends VerticalPanel {
 
 			@Override
 			public void onSuccess(Void result) {
-				inform("user reminded");
+				inform(user.getName() + " reminded");
 			}
 		});
 	}
 
-	private String getSelectedUser() {
-		String user = userListBox.getItemText(userListBox.getSelectedIndex());
-		if (user == null || user.length() < 1) {
-			Window.alert("Select a user to delete");
+	private UserDAO getSelectedUser() {
+		int index = userListBox.getSelectedIndex();
+		if (index==-1) {
+			Window.alert("Select a user");
 			return null;
 		}
-		return user;
+		return users.get(index);
 	}
 
 	private void deleteUser() {
-		String user = getSelectedUser();
+		UserDAO user = getSelectedUser();
 		if (user == null) {
 			return;
 		}
 
-		if (Window.confirm("Are you sure you want to delete " + user + "?")) {
+		if (Window.confirm("Are you sure you want to delete " + user.getName() + "?")) {
 			adminService.deleteUser(user, new AsyncCallback<Void>() {
 				@Override
 				public void onFailure(Throwable caught) {
@@ -169,22 +219,23 @@ public class UserList extends VerticalPanel {
 	private void getUsers() {
 		userListBox.clear();
 		userListBox.addItem("Loading...");
-		adminService.getUserList(new AsyncCallback<List<String>>() {
+		adminService.getUserList(new AsyncCallback<List<UserDAO>>() {
 			@Override
 			public void onFailure(Throwable caught) {
 				inform("connection failure");
 			}
 
 			@Override
-			public void onSuccess(List<String> result) {
+			public void onSuccess(List<UserDAO> result) {
 				populateUserList(result);
+				users = result;
 			}
 		});
 	}
 
-	public void addUser(String emailAddress) {
-		adminService.addUser(emailAddress, new AsyncCallback<Void>() {
-
+	// Callback from AddUserDialog
+	public void addUser(UserDAO user) {
+		adminService.addUser(user, new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(Throwable caught) {
 				inform("Connection failure");
@@ -198,11 +249,36 @@ public class UserList extends VerticalPanel {
 		});
 	}
 
-	private void populateUserList(List<String> users) {
+	// Callback from AddUserDialog
+	public void updateUser(UserDAO user) {
+		adminService.updateUser(user, new AsyncCallback<Void>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				inform("Connection failure");
+			}
+
+			@Override
+			public void onSuccess(Void result) {
+				inform("User updated");
+				getUsers();
+			}
+		});
+	}
+	
+	private void editUser() {
+		UserDAO user = getSelectedUser();
+		if (user==null) {
+			return;
+		}
+	
+		new AddUserDialog(this, user);
+	}
+
+	private void populateUserList(List<UserDAO> users) {
 		System.out.println("populateUserList from " + users);
 		userListBox.clear();
-		for (String user : users) {
-			userListBox.addItem(user);
+		for (UserDAO user : users) {
+			userListBox.addItem(user.getName() + " (" + user.getEmailAddresses().get(0) + ")");
 		}
 	}
 }

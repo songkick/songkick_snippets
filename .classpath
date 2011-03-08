@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/SKSnippets/war/WEB-INF/lib/mail.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="test-classes" path="test"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
@@ -8,5 +9,7 @@
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/Snippets/war/WEB-INF/lib/app-engine-workarounds-1.0.jar"/>
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/Snippets/war/WEB-INF/lib/joda-time-1.6.2.jar"/>
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/Snippets/war/WEB-INF/lib/objectify-2.2.3.jar"/>
+	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/SKSnippets/war/WEB-INF/lib/junit-4.8.1.jar"/>
+	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/SKSnippets/war/WEB-INF/lib/commons-io-2.0.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

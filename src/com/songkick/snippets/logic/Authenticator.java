@@ -1,58 +1,69 @@
 package com.songkick.snippets.logic;
 
-import java.util.logging.Logger;
-
-import javax.mail.Address;
-
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.googlecode.objectify.Objectify;
+import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.Query;
+import com.songkick.snippets.util.Debug;
 
 public class Authenticator {
-	public static final Logger log = Logger.getLogger(Authenticator.class
-			.getName());
-	
-	public boolean authenticate(Address fromAddress) {
-		if (fromAddress.toString().contains("@songkick.com")) {
+
+	public boolean isValidEmail(String fromAddress) {
+		// Whitelist all @songkick.com email addresses
+		if (fromAddress.contains("@songkick.com")) {
 			return true;
 		}
 
-		// Set to false to whitelist to songkick domain
+		Objectify ofy = ObjectifyService.begin();
+		Query<com.songkick.snippets.model.User> q = ofy.query(com.songkick.snippets.model.User.class);
+
+		// Whitelist all existing users
+		for (com.songkick.snippets.model.User user: q) {
+			if (user.matchesEmail(fromAddress)) {
+				return true;
+			}
+		}
+
 		return false;
 	}
-	
+
 	public boolean isSongkickUser() {
 		// Check this is a songkick.com user
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		
-		if (user==null || !user.getEmail().endsWith("@songkick.com")) {
+
+		if (user == null) {
+			Debug.error("Could not get current user during authentication");
 			return false;
 		}
-		
-		return true;
+
+		return isValidEmail(user.getEmail());
 	}
-	
-	public boolean isSongkickAdmin() {
+
+	public String isSongkickAdmin(String redirectURL) {
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
-		
-		log.severe("Checking for admin rights on user: " + user);
-		
-		if (user==null) {
-			log.severe("No user");
-			return false;
+
+		if (user == null) {
+			Debug.error("Authenticator.isSongkickAdmin: no user found, could not authenticate");
+			return userService.createLoginURL(redirectURL);
 		}
-		
+
 		// Whitelist admin users
 		if (user.getEmail().equals("dancrow@songkick.com")) {
-
-			log.severe("Whitelisted");
-			return true;
+			return null;
 		}
 
-		log.severe("Not an admin");
-		
-		return false;
+		Objectify ofy = ObjectifyService.begin();
+		Query<com.songkick.snippets.model.User> q = ofy.query(com.songkick.snippets.model.User.class);
+		for (com.songkick.snippets.model.User modelUser: q) {
+			if (modelUser.matchesEmail(user.getEmail()) && modelUser.isAdmin()) {
+				return null;
+			}
+		}
+
+		return userService.createLoginURL(redirectURL);
 	}
 }

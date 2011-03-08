@@ -6,4 +6,11 @@
     <schedule>every monday 10:00</schedule>
     <timezone>Europe/London</timezone>
   </cron>
+  
+  <cron>
+    <url>/reminders2</url>
+    <description>Generate the second email reminders</description>
+    <schedule>every monday 16:30</schedule>
+    <timezone>Europe/London</timezone>
+  </cron>
 </cronentries>

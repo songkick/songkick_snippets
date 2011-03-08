@@ -11,28 +11,32 @@ import com.songkick.snippets.client.ui.SnippetControlPanel;
  * Entry point for the Snippets Control Panel
  */
 public class AdminUI implements EntryPoint {
-	private final AdminServiceAsync adminService = GWT
-			.create(AdminService.class);
+	private final AdminServiceAsync adminService = GWT.create(AdminService.class);
 
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		adminService.isValidAdmin(new AsyncCallback<Boolean>() {
-			@Override
-			public void onFailure(Throwable caught) {
-				Window.alert("Server connection failed " + caught);
-			}
+		adminService.isValidAdmin("http://sksnippet.appspot.com/",
+				new AsyncCallback<String>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						Window.alert("Server connection failed " + caught);
+					}
 
-			@Override
-			public void onSuccess(Boolean result) {
-				if (result) {
-					showMainUI();
-				} else {
-					Window.alert("Please login to an authorized admin account");
-				}
-			}
-		});
+					@Override
+					// result is either null, indiciating that the user authenticated as
+					// an admin, or it contains a redirect URL that takes the user to the
+					// login page. After visiting that URL, the user will be redirected
+					// back to this entry point
+					public void onSuccess(String result) {
+						if (result == null) {
+							showMainUI();
+						} else {
+							Window.open(result, "_self", "");
+						}
+					}
+				});
 	}
 
 	private void showMainUI() {
