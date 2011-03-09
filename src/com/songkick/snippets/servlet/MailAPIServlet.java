@@ -9,20 +9,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
 import com.songkick.snippets.logic.Authenticator;
-import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.logic.MailHandler;
-import com.songkick.snippets.model.Snippet;
-import com.songkick.snippets.model.User;
 import com.songkick.snippets.util.Debug;
 
 @SuppressWarnings("serial")
 /**
  * Servlet to provide an API for the UploadEmails program. 
  * 
- * The servlet should be called with the From address in the from param. The body of a call contains a serialized java.lang.String containing the body of the email. 
+ * The servlet should be called with the From address in the from param. 
+ * The body of a call contains a serialized java.lang.String containing 
+ * the body of the email. 
  */
 public class MailAPIServlet extends HttpServlet {
 	private MailHandler handler = new MailHandler();
@@ -40,11 +37,11 @@ public class MailAPIServlet extends HttpServlet {
 		ObjectInputStream inStream = new ObjectInputStream(req.getInputStream());
 		try {
 			Serializable object = (Serializable) inStream.readObject();
-			String result = processMail(from, (String) object);
+			handler.processMail(from, (String) object);
 
-			Debug.log(result);
+			Debug.log("Got email from " + from + ": " + object);
 
-			respond(resp, 200, result);
+			respond(resp, 200, "");
 			return;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -77,23 +74,5 @@ public class MailAPIServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		respond(resp, 501, "Only POST is supported by this API");
-	}
-
-	private String processMail(String from, String emailBody) {
-		User user = handler.getOrCreateUser(from);
-
-		Debug.log("Got user: " + user);
-
-		Snippet snippet = new Snippet(user, emailBody);
-
-		snippet.setDate(handler.getDateNow());
-		snippet.setWeekNumber(DateHandler.getCurrentWeek());
-
-		Debug.dbLog("Created snippet from email: " + snippet);
-
-		Objectify ofy = ObjectifyService.begin();
-		ofy.put(snippet);
-
-		return "Got message from " + from + ": " + emailBody;
 	}
 }
