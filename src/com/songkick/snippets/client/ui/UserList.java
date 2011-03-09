@@ -148,7 +148,7 @@ public class UserList extends VerticalPanel {
 
 			@Override
 			public void onSuccess(List<String> result) {
-				SnippetViewer viewer = new SnippetViewer();
+				ViewSnippetDialog viewer = new ViewSnippetDialog();
 				
 				viewer.setSnippets(result);
 				viewer.center();
