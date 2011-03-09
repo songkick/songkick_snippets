@@ -1,13 +1,16 @@
 package com.songkick.snippets.model;
 
+import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.logic.MailSender;
 import com.songkick.snippets.logic.ReminderHandler.MailType;
+import com.songkick.snippets.presentation.SnippetPresentation;
 import com.songkick.snippets.util.Debug;
 
 public class ReminderEmail {
 	private static MailSender mailSender = new MailSender();
-
 	private static final boolean FAKE_SENDING = false;
+	
+	private static String digestCache = null;
 
 	public static void remindUser(String emailAddress, MailType type) {
 		if (FAKE_SENDING) {
@@ -15,7 +18,12 @@ public class ReminderEmail {
 					+ " but fake sending is set");
 			return;
 		}
-
+		
+		if (type==MailType.Digest) {
+			mailSender.sendEmail(emailAddress, "Weekly snippet digest", generateDigest());
+			return;
+		}
+		
 		String text = "This is your automated snippet nag email. You haven't submitted a snippet yet this week. "
 				+ "Please reply to this message with your snippet by midnight on Monday.\n\n"
 				+ "From Tuesday morning you can "
@@ -33,5 +41,14 @@ public class ReminderEmail {
 		}
 
 		mailSender.sendEmail(emailAddress, "Snippet reminder", text);
+	}
+	
+	private static String generateDigest() {
+		if (digestCache==null) {
+			SnippetPresentation presentation = new SnippetPresentation();
+			digestCache = presentation.getSnippetsText(DateHandler.getCurrentWeek()-1);
+		}
+
+		return digestCache;
 	}
 }

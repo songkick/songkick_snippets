@@ -2,6 +2,7 @@ package com.songkick.snippets.presentation;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,26 +25,26 @@ public class SnippetPresentation {
 		ObjectifyService.register(User.class);
 	}
 
-	public void showWeekList(PrintWriter out) throws IOException {
+	public void showWeekList(Writer out) throws IOException {
 		Long lastWeek = DateHandler.getCurrentWeek() - 1;
 
-		out.println("<b>By week:</b>");
-		out.println("<ul>");
+		out.write("<b>By week:</b>\n");
+		out.write("<ul>\n");
 
 		// Display the weeks in reverse order
 		for (Long week = lastWeek; week > 0; week--) {
-			out.print("<li>");
+			out.write("<li>\n");
 			if (week == lastWeek) {
-				out.print("<a href='snippets?week=" + week + "'>Last week</a>");
+				out.write("<a href='snippets?week=" + week + "'>Last week</a>\n");
 			} else {
-				out.print("<a href='snippets?week=" + week + "'>Week from "
+				out.write("<a href='snippets?week=" + week + "'>Week from "
 						+ DateHandler.weekToDate(week) + " to "
-						+ DateHandler.weekToDate(week + 1));
+						+ DateHandler.weekToDate(week + 1) + "\n");
 			}
-			out.println("</li>");
+			out.write("</li>\n");
 		}
 
-		out.println("</ul>");
+		out.write("</ul>\n");
 	}
 
 	/**
@@ -100,12 +101,7 @@ public class SnippetPresentation {
 		return results;
 	}
 
-	/**
-	 * Get snippets for past week
-	 * 
-	 * @return
-	 */
-	public String getSnippetsHTML(Long week) {
+	private UsersLists getUsersLists(Long week) {
 		List<SnippetInMemory> snippets = getSnippets(week);
 		List<User> users = getUsers();
 		List<User> usersWithSnippet = new ArrayList<User>();
@@ -143,6 +139,42 @@ public class SnippetPresentation {
 			}
 		}
 
+		UsersLists result = new UsersLists();
+		
+		result.setWithoutSnippets(usersWithoutSnippet);
+		result.setWithSnippets(usersWithSnippet);
+		
+		return result;
+	}
+
+	public String getSnippetsText(Long week) {
+		UsersLists usersLists = getUsersLists(week);
+		
+		String text = "Snippets for " + DateHandler.weekToDate(week) + " to "
+				+ DateHandler.weekToDate(week + 1) + "\n\n";
+		for (User user : usersLists.getWithSnippets()) {
+			text += generateSnippetText(user, user.getSnippetList()) + "\n";
+		}
+
+		if (usersLists.getWithoutSnippets().size() > 0) {
+			text += "\n\nNo snippets received from: ";
+			for (User user : usersLists.getWithoutSnippets()) {
+				text += user.getBestName() + ", ";
+			}
+			text += "\n";
+		}
+
+		return text;
+	}
+
+	/**
+	 * Get snippets for the specified week as HTML
+	 * 
+	 * @return
+	 */
+	public String getSnippetsHTML(Long week) {
+		UsersLists usersLists = getUsersLists(week);
+		
 		String text = "<html>";
 		text += "<link type=\"text/css\" rel=\"stylesheet\" href=\"SnippetReport.css\">";
 		text += "<title>Snippets for " + DateHandler.weekToDate(week) + " to "
@@ -150,13 +182,13 @@ public class SnippetPresentation {
 		text += "<h1>Songkick snippets for " + DateHandler.weekToDate(week)
 				+ " to " + DateHandler.weekToDate(week + 1) + "</h1>";
 		text += "<body>";
-		for (User user : usersWithSnippet) {
+		for (User user : usersLists.getWithSnippets()) {
 			text += "<p>" + generateSnippetHTML(user, user.getSnippetList()) + "</p>";
 		}
 
-		if (usersWithoutSnippet.size() > 0) {
+		if (usersLists.getWithoutSnippets().size() > 0) {
 			text += "<p>No snippets received from: ";
-			for (User user : usersWithoutSnippet) {
+			for (User user : usersLists.getWithoutSnippets()) {
 				text += user.getBestName() + ", ";
 			}
 			text += "</p>";
@@ -186,6 +218,33 @@ public class SnippetPresentation {
 
 		return html;
 	}
+	
+	private String generateText(String html) {
+		html = html.replaceAll("\\<br\\>", "\n");
+		html = html.replaceAll("\\<div\\>", "");
+		html = html.replaceAll("\\</div\\>", "\n");
+		
+		return html;
+	}
+
+	private String generateSnippetText(User user, List<Snippet> snippets) {
+		String text = "";
+
+		text += "\nFrom: "
+				+ user.getBestName().replaceAll("<", "[").replaceAll(">", "]")
+				+ "\n";
+
+		for (Snippet snippet : snippets) {
+			if (snippet.getSnippetText() != null) {
+				text += generateText(snippet.getSnippetText()) + "\n";
+				if (snippet.getDate() != null) {
+					text += "Sent: " + snippet.getDate() + "\n";
+				}
+			}
+		}
+
+		return text;
+	}
 
 	/**
 	 * Return the list of snippets for last week
@@ -202,5 +261,26 @@ public class SnippetPresentation {
 			snippets.add(sim);
 		}
 		return snippets;
+	}
+
+	class UsersLists {
+		private List<User> withSnippets = null;
+		private List<User> withoutSnippets = null;
+
+		public List<User> getWithSnippets() {
+			return withSnippets;
+		}
+
+		public void setWithSnippets(List<User> withSnippets) {
+			this.withSnippets = withSnippets;
+		}
+
+		public List<User> getWithoutSnippets() {
+			return withoutSnippets;
+		}
+
+		public void setWithoutSnippets(List<User> withoutSnippets) {
+			this.withoutSnippets = withoutSnippets;
+		}
 	}
 }

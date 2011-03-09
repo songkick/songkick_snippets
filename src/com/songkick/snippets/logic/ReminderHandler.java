@@ -18,7 +18,7 @@ import com.songkick.snippets.util.Debug;
 
 public class ReminderHandler {
 	public enum MailType {
-		FirstReminder, SecondReminder
+		FirstReminder, SecondReminder, Digest
 	};
 
 	public ReminderHandler() {
@@ -121,6 +121,13 @@ public class ReminderHandler {
 
 		queueRemindersTo(toRemind, type);
 	}
+	
+	public void sendDigest() {
+		List<User> users = getUsers();
+		//List<User> users = getAdminUsers();
+		
+		queueRemindersTo(users, MailType.Digest);
+	}
 
 	/**
 	 * Get a list of users who have a snippet for the specified week
@@ -177,6 +184,24 @@ public class ReminderHandler {
 		List<User> users = new ArrayList<User>();
 		for (User user : q) {
 			users.add(user);
+		}
+
+		return users;
+	}
+
+	/**
+	 * For testing purposes, get the list of admin users
+	 * 
+	 * @return
+	 */
+	private List<User> getAdminUsers() {
+		Objectify ofy = ObjectifyService.begin();
+		Query<User> q = ofy.query(User.class);
+		List<User> users = new ArrayList<User>();
+		for (User user : q) {
+			if (user.isAdmin()) {
+				users.add(user);
+			}
 		}
 
 		return users;

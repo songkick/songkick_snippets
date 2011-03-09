@@ -50,21 +50,6 @@
 			</auth-constraint>
 		</security-constraint>
 	</servlet-mapping>
-	
-	<!-- Servlet called by cron job to send second snippet reminders -->
-	<servlet>
-		<servlet-name>Reminder2</servlet-name>
-		<servlet-class>com.songkick.snippets.servlet.Reminder2Servlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Reminder2</servlet-name>
-		<url-pattern>/reminders2</url-pattern>
-		<security-constraint>
-			<auth-constraint>
-				<role-name>admin</role-name>
-			</auth-constraint>
-		</security-constraint>
-	</servlet-mapping>
 
 	<!-- Task Queue servlet to handle distributed email sending -->
 	<servlet>

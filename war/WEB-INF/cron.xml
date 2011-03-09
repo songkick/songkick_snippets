@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
   <cron>
-    <url>/reminders</url>
+    <url>/reminders?which=one</url>
     <description>Generate the email reminders</description>
     <schedule>every monday 10:00</schedule>
     <timezone>Europe/London</timezone>
   </cron>
   
   <cron>
-    <url>/reminders2</url>
+    <url>/reminders?which=two</url>
     <description>Generate the second email reminders</description>
     <schedule>every monday 16:30</schedule>
+    <timezone>Europe/London</timezone>
+  </cron>
+  
+  <cron>
+    <url>/reminders?which=digest</url>
+    <description>Email out the digest summary</description>
+    <schedule>every tuesday 9:30</schedule>
     <timezone>Europe/London</timezone>
   </cron>
 </cronentries>
