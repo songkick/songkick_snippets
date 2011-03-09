@@ -8,7 +8,7 @@ import org.joda.time.format.DateTimeFormatter;
 import com.songkick.snippets.util.Debug;
 
 public class DateHandler {
-	// This is the base date for all week calculations - epoch is the first Monday of 2010
+	// This is the base date for all week calculations - epoch is the first Monday of 2011
 	private static final DateTime WEEK1 = new DateTime("2011-01-03T23:59");
 
 	/**
@@ -19,12 +19,8 @@ public class DateHandler {
 	public static Long getCurrentWeek() {
 		DateTime now = new DateTime();
 		
-		//Debug.log("Generating weeks between epoch (" + WEEK1 + ") and now (" + now + ")");
-		
 		Weeks numWeeks = Weeks.weeksBetween(WEEK1, now);
 		long weeks = numWeeks.getWeeks();
-		
-		//Debug.log("numWeeks=" + numWeeks + " weeks=" + weeks);
 		
 		if (weeks<1) {
 			Debug.error("Incorrect week number generated (" + weeks + ") for now=" + now);
@@ -46,5 +42,4 @@ public class DateHandler {
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("MM/dd/yyyy");
 		return start.toString(formatter);
 	}
-
 }
