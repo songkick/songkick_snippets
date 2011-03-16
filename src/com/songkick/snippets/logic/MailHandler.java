@@ -24,14 +24,14 @@ public class MailHandler {
 		ObjectifyService.register(Snippet.class);
 	}
 	
-	public void processMail(String from, String emailBody) {
+	public void processMail(String from, String date, String emailBody) {
 		User user = getOrCreateUser(from);
 
 		Debug.log("Got user: " + user);
 
 		Snippet snippet = new Snippet(user, emailBody);
 
-		snippet.setDate(getDateNow());
+		snippet.setDate(date);
 		snippet.setWeekNumber(DateHandler.getCurrentWeek());
 
 		Debug.dbLog("Created snippet from email: " + snippet);

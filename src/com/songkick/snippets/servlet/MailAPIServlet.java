@@ -33,13 +33,15 @@ public class MailAPIServlet extends HttpServlet {
 			respond(resp, 401, "Unable to authenticate your email address");
 			return;
 		}
+		
+		String date = req.getParameter("date");
 
 		ObjectInputStream inStream = new ObjectInputStream(req.getInputStream());
 		try {
 			Serializable object = (Serializable) inStream.readObject();
-			handler.processMail(from, (String) object);
+			handler.processMail(from, date, (String) object);
 
-			Debug.log("Got email from " + from + ": " + object);
+			Debug.log("Got email from " + from + " on " + date + ": " + object);
 
 			respond(resp, 200, "");
 			return;
