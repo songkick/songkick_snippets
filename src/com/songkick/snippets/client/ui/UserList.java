@@ -3,6 +3,8 @@ package com.songkick.snippets.client.ui;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
@@ -16,6 +18,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.songkick.snippets.client.AdminService;
 import com.songkick.snippets.client.AdminServiceAsync;
+import com.songkick.snippets.client.ui.util.UI;
 import com.songkick.snippets.shared.dao.UserDAO;
 
 /**
@@ -31,9 +34,12 @@ public class UserList extends VerticalPanel {
 	private TextBox infoTextBox = new TextBox();
 	private Button addSnippetButton = UI.makeButton("Add");
 	private Button editSnippetsButton = UI.makeButton("Edit");
+	private UserPanel userPanel = null;
 	private List<UserDAO> users = null;
 
-	public UserList() {
+	public UserList(UserPanel userPanel) {
+		this.userPanel = userPanel;
+		
 		createUI();
 
 		getUsers();
@@ -68,13 +74,7 @@ public class UserList extends VerticalPanel {
 		addUserButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				new AddUserDialog(UserList.this, null);
-			}
-		});
-		editUserButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				editUser();
+				userPanel.setUser(UserList.this, null);
 			}
 		});
 		deleteUserButton.addClickHandler(new ClickHandler() {
@@ -110,6 +110,12 @@ public class UserList extends VerticalPanel {
 
 		userListBox.setVisibleItemCount(20);
 		userListBox.setSize("100%", "100%");
+		
+		userListBox.addChangeHandler(new ChangeHandler() {
+			@Override
+			public void onChange(ChangeEvent event) {
+				editUser();
+			}});
 
 		infoTextBox.setWidth("34em");
 	}
@@ -271,7 +277,13 @@ public class UserList extends VerticalPanel {
 			return;
 		}
 	
-		new AddUserDialog(this, user);
+		if (userPanel.hasChanged()) {
+			EditUserCheckDialog dialog = new EditUserCheckDialog(userPanel, this, user);
+			
+			dialog.center();
+		} else {
+			userPanel.setUser(this, user);
+		}
 	}
 
 	private void populateUserList(List<UserDAO> users) {

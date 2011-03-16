@@ -11,6 +11,8 @@ public class UserDAO implements Serializable {
 	private List<String> emailAddresses = new ArrayList<String>();
 	private String group = null;
 	private boolean isAdmin = false;
+	private String startDate = null;
+	private String endDate = null;
 	
 	public UserDAO() {
 		// Tells us that this DAO was created in the UI
@@ -63,5 +65,21 @@ public class UserDAO implements Serializable {
 
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
+	}
+
+	public String getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+
+	public String getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
 	}
 }

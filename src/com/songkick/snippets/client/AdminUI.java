@@ -25,7 +25,7 @@ public class AdminUI implements EntryPoint {
 					}
 
 					@Override
-					// result is either null, indiciating that the user authenticated as
+					// result is either null, indicating that the user authenticated as
 					// an admin, or it contains a redirect URL that takes the user to the
 					// login page. After visiting that URL, the user will be redirected
 					// back to this entry point

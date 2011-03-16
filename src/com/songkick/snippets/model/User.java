@@ -14,6 +14,8 @@ public class User {
 	private String group = null;
 	private List<Snippet> snippetList = null;
 	private boolean isAdmin = false;
+	private String startDate = null;
+	private String endDate = null;
 
 	public User() {
 		// Needed for datastore
@@ -101,5 +103,21 @@ public class User {
 
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
+	}
+
+	public String getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+
+	public String getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
 	}
 }

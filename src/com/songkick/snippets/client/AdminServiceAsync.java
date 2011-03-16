@@ -32,6 +32,4 @@ public interface AdminServiceAsync {
 	public void getLog(AsyncCallback<String> callback);
 	
 	public void getUsersToRemind(AsyncCallback<List<UserDAO>> callback);
-
-	public void getIMAPEmail(AsyncCallback<Void> callback);
 }

@@ -35,7 +35,5 @@ public interface AdminService extends RemoteService {
 	
 	String getLog();
 	
-	public void getIMAPEmail();
-	
 	public String getSnippet(UserDAO user, Long weekNumber);
 }

@@ -38,7 +38,7 @@ public class MailSender {
 			msg.setSubject(subject);
 			msg.setText(body);
 			Transport.send(msg);
-			Debug.error("Message sent (async)");
+			Debug.log("Message sent (async) to " + toEmail);
 		} catch (UnsupportedEncodingException e) {
 			Debug.error("UnsupportedEncodingException: " + e);
 			e.printStackTrace();

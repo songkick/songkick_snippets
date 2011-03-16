@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
@@ -21,8 +18,6 @@ import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
 import com.songkick.snippets.shared.dao.UserDAO;
 import com.songkick.snippets.util.Debug;
-import com.songkick.snippets.util.XoauthAuthenticator;
-import com.sun.mail.imap.IMAPSSLStore;
 
 /**
  * The server side implementation of the RPC service.
@@ -61,6 +56,8 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		dao.setId(user.getId());
 		dao.setName(user.getName());
 		dao.setAdmin(user.isAdmin());
+		dao.setStartDate(user.getStartDate());
+		dao.setEndDate(user.getEndDate());
 		if (user.getEmailAddress() != null) {
 			dao.addEmail(user.getEmailAddress());
 		}
@@ -102,6 +99,8 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		Objectify ofy = ObjectifyService.begin();
 		user.setName(dao.getName());
 		user.setAdmin(dao.isAdmin());
+		user.setStartDate(dao.getStartDate());
+		user.setEndDate(user.getEndDate());
 		if (dao.getEmailAddresses().size() > 0) {
 			user.setEmailAddress(dao.getEmailAddresses().get(0));
 			if (dao.getEmailAddresses().size() > 1) {
@@ -224,37 +223,6 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		}
 
 		return results;
-	}
-
-	@Override
-	public void getIMAPEmail() {
-		Debug.log("Connecting...");
-		XoauthAuthenticator.initialize();
-		Debug.log("initialized");
-		
-		try {
-			IMAPSSLStore imapSSLStore = XoauthAuthenticator.connectToImap("mail.google.com",
-			    993,
-			    "snippet@songkick.com",
-			    "1/tU9GPGxzgb3zqjEYurV2v9aFTVb2qmGzRhLt9VptHvc",
-			    "YYSdsYG2kkKvBHBKwVPtWxig",
-			    XoauthAuthenticator.getAnonymousConsumer(),
-			    true);
-			
-			Debug.log("Got imapSSLStore");
-			
-			Folder folder = imapSSLStore.getDefaultFolder();
-			
-			Message[] messages = folder.getMessages();
-			
-			for (Message message: messages) {
-				Debug.log("Got message from: " + message.getFrom());
-			}
-			
-		} catch (Exception e) {
-			Debug.log("Could not connect to IMAP: " + e);
-			e.printStackTrace();
-		}
 	}
 
 	@Override

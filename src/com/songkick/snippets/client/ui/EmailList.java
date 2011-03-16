@@ -13,12 +13,16 @@ public class EmailList extends VerticalPanel {
 	private VerticalPanel list = new VerticalPanel();
 
 	public EmailList() {
-		this(null);
+		createUI();
 	}
 
-	public EmailList(UserDAO user) {
+	public void setUser(UserDAO user) {
 		this.user = user;
-		createUI();
+		
+		list.clear();
+		for (String email : user.getEmailAddresses()) {
+			addEmail(email);
+		}
 	}
 
 	private void createUI() {
@@ -29,6 +33,7 @@ public class EmailList extends VerticalPanel {
 
 		scrollPanel.setWidget(list);
 		list.setStylePrimaryName("emailList");
+		list.setWidth("100%");
 
 		if (user != null) {
 			for (String email : user.getEmailAddresses()) {
