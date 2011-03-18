@@ -106,6 +106,7 @@ public class UserPanel extends VerticalPanel {
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		Button saveButton = UI.makeButton("Save");
 
+		add(UI.makeLabel("User Record:", "headerLabel"));
 		add(createLabel("Name:", nameTextBox));
 		add(adminCheckBox);
 		adminCheckBox.setStylePrimaryName("indentedCheckbox");
@@ -117,7 +118,7 @@ public class UserPanel extends VerticalPanel {
 		add(endDateBox);
 
 		setWidth("400px");
-		setStylePrimaryName("UserList");
+		setStylePrimaryName("UserPanel");
 		
 		nameTextBox.addChangeHandler(new ChangeHandler() {
 			@Override

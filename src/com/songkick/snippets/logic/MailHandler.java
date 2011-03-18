@@ -3,12 +3,13 @@ package com.songkick.snippets.logic;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
-import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.Query;
+import org.joda.time.DateTime;
+
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
+import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.util.Debug;
 
 /**
@@ -17,27 +18,20 @@ import com.songkick.snippets.util.Debug;
  * @author dancrow
  */
 public class MailHandler {
-
-	public MailHandler() {
-		// Register the database classes we will use
-		ObjectifyService.register(User.class);
-		ObjectifyService.register(Snippet.class);
-	}
 	
-	public void processMail(String from, String date, String emailBody) {
-		User user = getOrCreateUser(from);
+	public void processMail(String from, String date, String emailBody, DataStorage dataStore) {
+		User user = getOrCreateUser(from, dataStore);
 
 		Debug.log("Got user: " + user);
 
 		Snippet snippet = new Snippet(user, emailBody);
 
 		snippet.setDate(date);
-		snippet.setWeekNumber(DateHandler.getCurrentWeek());
+		snippet.setWeekNumber(DateHandler.getWeekNumber(new DateTime(date)));
 
-		Debug.dbLog("Created snippet from email: " + snippet);
+		Debug.log("Created snippet from email: " + snippet);
 
-		Objectify ofy = ObjectifyService.begin();
-		ofy.put(snippet);
+		dataStore.save(snippet);
 	}
 
 	public String getDateNow() {
@@ -46,12 +40,11 @@ public class MailHandler {
 		return dateFormat.format(date);
 	}
 	
-	public User getOrCreateUser(String userEmail) {
+	public User getOrCreateUser(String userEmail, DataStorage dataStore) {
 		Debug.log("From " + userEmail);
 
-		Objectify ofy = ObjectifyService.begin();
-		Query<User> existingUsers = ofy.query(User.class);
-
+		List<User> existingUsers = dataStore.getUsers();
+		
 		for (User user : existingUsers) {
 			if (user.matchesEmail(userEmail)) {
 				return user;
@@ -62,7 +55,8 @@ public class MailHandler {
 		Debug.log("Creating new user");
 		User newUser = new User();
 		newUser.setEmailAddress(userEmail);
-		ofy.put(newUser);
+		
+		dataStore.save(newUser);
 		return newUser;
 	}
 }

@@ -25,15 +25,11 @@ public interface AdminService extends RemoteService {
 	
 	String isValidAdmin(String redirectURL);
 	
-	void remindUsers();
-	
 	List<UserDAO> getUsersToRemind();
 	
 	void addSnippet(UserDAO dao, String snippet, int week);
 	
 	public void replaceSnippet(UserDAO dao, String snippet, Long week);
-	
-	String getLog();
 	
 	public String getSnippet(UserDAO user, Long weekNumber);
 }

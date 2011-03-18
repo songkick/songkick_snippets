@@ -24,12 +24,8 @@ public interface AdminServiceAsync {
 	
 	void isValidAdmin(String redirectURL, AsyncCallback<String> callback);
 	
-	void remindUsers(AsyncCallback<Void> callback);
-	
 	void addSnippet(UserDAO dao, String snippet, int week, AsyncCallback<Void> callback);
 	public void replaceSnippet(UserDAO user, String snippet, Long weekNumber, AsyncCallback<Void> callback);
-	
-	public void getLog(AsyncCallback<String> callback);
 	
 	public void getUsersToRemind(AsyncCallback<List<UserDAO>> callback);
 }

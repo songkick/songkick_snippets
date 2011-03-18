@@ -19,11 +19,15 @@ public class DateHandler {
 	public static Long getCurrentWeek() {
 		DateTime now = new DateTime();
 		
-		Weeks numWeeks = Weeks.weeksBetween(WEEK1, now);
+		return getWeekNumber(now);
+	}
+	
+	public static Long getWeekNumber(DateTime date) {
+		Weeks numWeeks = Weeks.weeksBetween(WEEK1, date);
 		long weeks = numWeeks.getWeeks();
 		
 		if (weeks<1) {
-			Debug.error("Incorrect week number generated (" + weeks + ") for now=" + now);
+			Debug.error("Incorrect week number generated (" + weeks + ") for now=" + date);
 		}
 		
 		return weeks;

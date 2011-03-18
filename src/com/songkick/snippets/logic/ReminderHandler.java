@@ -1,6 +1,6 @@
 package com.songkick.snippets.logic;
 
-import static com.google.appengine.api.taskqueue.TaskOptions.Builder.*;
+import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,22 +9,14 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.taskqueue.TaskOptions.Method;
-import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.Query;
-import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
+import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.util.Debug;
 
 public class ReminderHandler {
 	public enum MailType {
 		FirstReminder, SecondReminder, Digest
 	};
-
-	public ReminderHandler() {
-		ObjectifyService.register(Snippet.class);
-		ObjectifyService.register(User.class);
-	}
 
 	/**
 	 * Create a task queue entry to send a single email
@@ -74,24 +66,9 @@ public class ReminderHandler {
 		}
 	}
 
-	public void testReminders() {
-		List<User> users = new ArrayList<User>();
-
-		Objectify ofy = ObjectifyService.begin();
-		Query<User> q = ofy.query(User.class);
-
-		for (User user : q) {
-			if (user.getEmailAddress().contains("crow")) {
-				users.add(user);
-			}
-		}
-
-		queueRemindersTo(users, MailType.FirstReminder);
-	}
-
-	public List<User> getUsersWithoutSnippet(Long week) {
-		List<User> users = getUsers();
-		List<User> withCurrentSnippets = getUsersWithSnippetFor(week);
+	public List<User> getUsersWithoutSnippet(Long week, DataStorage dataStore) {
+		List<User> users = dataStore.getUsers();
+		List<User> withCurrentSnippets = dataStore.getUsersWithSnippetFor(week);
 
 		List<User> toRemind = new ArrayList<User>();
 
@@ -115,39 +92,22 @@ public class ReminderHandler {
 	 * Find all the users who don't have a snippet for this week and send each of
 	 * them a reminder email
 	 */
-	public void generateReminders(MailType type) {
+	public void generateReminders(MailType type, DataStorage dataStore) {
 		Long currentWeek = DateHandler.getCurrentWeek();
-		List<User> toRemind = getUsersWithoutSnippet(currentWeek);
+		List<User> toRemind = getUsersWithoutSnippet(currentWeek, dataStore);
 
 		queueRemindersTo(toRemind, type);
 	}
 	
-	public void sendDigest() {
-		List<User> users = getUsers();
-		//List<User> users = getAdminUsers();
+	/**
+	 * Send a digest of last week's snippets to all users
+	 * 
+	 * @param dataStore
+	 */
+	public void sendDigest(DataStorage dataStore) {
+		List<User> users = dataStore.getUsers();
 		
 		queueRemindersTo(users, MailType.Digest);
-	}
-
-	/**
-	 * Get a list of users who have a snippet for the specified week
-	 * 
-	 * @param week
-	 * @return
-	 */
-	private List<User> getUsersWithSnippetFor(Long week) {
-		List<User> users = new ArrayList<User>();
-
-		Objectify ofy = ObjectifyService.begin();
-		Query<Snippet> q = ofy.query(Snippet.class).filter("weekNumber", week);
-
-		for (Snippet snippet : q) {
-			User user = ofy.get(snippet.getUser());
-			if (!users.contains(user)) {
-				users.add(user);
-			}
-		}
-		return users;
 	}
 
 	/**
@@ -157,53 +117,17 @@ public class ReminderHandler {
 	 * 
 	 * @param emailAddress
 	 */
-	public void remindUser(String emailAddress, MailType type) {
+	public void remindUser(String emailAddress, MailType type, DataStorage dataStore) {
 		Debug.log("remindUser. emailAddress: " + emailAddress);
-		Objectify ofy = ObjectifyService.begin();
-		Query<User> q = ofy.query(User.class);
-
-		Debug.log("Found matching users: " + q.list());
-		List<User> users = new ArrayList<User>();
-		for (User user : q) {
+		
+		List<User> users = dataStore.getUsers();
+		List<User> toRemind = new ArrayList<User>();
+		for (User user : users) {
 			if (user.getEmailAddress().equals(emailAddress)) {
-				users.add(user);
+				toRemind.add(user);
 			}
 		}
 
-		queueRemindersTo(users, type);
-	}
-
-	/**
-	 * Return the list of all users
-	 * 
-	 * @return
-	 */
-	private List<User> getUsers() {
-		Objectify ofy = ObjectifyService.begin();
-		Query<User> q = ofy.query(User.class);
-		List<User> users = new ArrayList<User>();
-		for (User user : q) {
-			users.add(user);
-		}
-
-		return users;
-	}
-
-	/**
-	 * For testing purposes, get the list of admin users
-	 * 
-	 * @return
-	 */
-	private List<User> getAdminUsers() {
-		Objectify ofy = ObjectifyService.begin();
-		Query<User> q = ofy.query(User.class);
-		List<User> users = new ArrayList<User>();
-		for (User user : q) {
-			if (user.isAdmin()) {
-				users.add(user);
-			}
-		}
-
-		return users;
+		queueRemindersTo(toRemind, type);
 	}
 }

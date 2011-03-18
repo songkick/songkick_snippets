@@ -17,14 +17,12 @@ import com.songkick.snippets.client.AdminServiceAsync;
 import com.songkick.snippets.client.ui.util.UI;
 import com.songkick.snippets.shared.dao.UserDAO;
 
-public class SnippetControlPanel extends HorizontalPanel {
+public class SnippetControlPanel extends VerticalPanel {
 	private final AdminServiceAsync adminService = GWT.create(AdminService.class);
 
 	private Anchor thisWeekLink = new Anchor("Current week's snippets");
 	private UserPanel userPanel = null;
 	private UserList userList = null;
-	private Button sendReminderButton = UI.makeButton("Send reminders");
-	private Button viewLogButton = UI.makeButton("View log");
 	private Button showUsersToRemindButton = UI
 			.makeButton("Show users to remind");
 
@@ -45,49 +43,35 @@ public class SnippetControlPanel extends HorizontalPanel {
 	}
 
 	private void createUI() {
-		VerticalPanel midPanel = new VerticalPanel();
+		HorizontalPanel titlePanel = new HorizontalPanel();
+		HorizontalPanel mainPanel = new HorizontalPanel();
+		
+		titlePanel.setWidth("100%");
+		titlePanel.setHeight("2em;");
+		titlePanel.add(UI.makeLabel("Songkick Snippets Control Panel", "headerLabel"));
+		titlePanel.setStylePrimaryName("Title");
+		
 		userPanel = new UserPanel();
 		userList = new UserList(userPanel);
 		
 		Panel leftPanel = createLeftPanel();
 		Panel rightPanel = createRightPanel();
-
-
-		midPanel.add(UI.makeLabel("User Record:", "headerLabel"));
-		midPanel.add(userPanel);
 		
-		add(leftPanel);
-		add(midPanel);
-		add(rightPanel);
+		add(titlePanel);
+		mainPanel.add(leftPanel);
+		mainPanel.add(userPanel);
+		mainPanel.add(rightPanel);
+		add(mainPanel);
+		
+		setWidth("100%");
 	}
 
 	private Panel createRightPanel() {
 		Panel panel = new VerticalPanel();
 
 		panel.add(UI.makeLabel("Actions", "headerLabel"));
-		panel.add(sendReminderButton);
 		panel.add(showUsersToRemindButton);
-		panel.add(viewLogButton);
 		panel.setStylePrimaryName("UserList");
-
-		viewLogButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				adminService.getLog(new AsyncCallback<String>() {
-					@Override
-					public void onFailure(Throwable caught) {
-						Window.alert("Connection failed");
-					}
-
-					@Override
-					public void onSuccess(String result) {
-						LogViewer viewer = new LogViewer(result);
-
-						viewer.center();
-					}
-				});
-			}
-		});
 
 		showUsersToRemindButton.addClickHandler(new ClickHandler() {
 			@Override
@@ -108,23 +92,6 @@ public class SnippetControlPanel extends HorizontalPanel {
 
 						LogViewer viewer = new LogViewer(toShow);
 						viewer.center();
-					}
-				});
-			}
-		});
-
-		sendReminderButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				adminService.remindUsers(new AsyncCallback<Void>() {
-					@Override
-					public void onFailure(Throwable caught) {
-						Window.alert("Connection failed");
-					}
-
-					@Override
-					public void onSuccess(Void result) {
-						// TODO Auto-generated method stub
 					}
 				});
 			}

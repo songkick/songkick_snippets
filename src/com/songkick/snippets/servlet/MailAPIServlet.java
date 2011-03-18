@@ -11,35 +11,38 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.songkick.snippets.logic.Authenticator;
 import com.songkick.snippets.logic.MailHandler;
+import com.songkick.snippets.server.data.DataStorage;
+import com.songkick.snippets.server.data.DataStorageHandler;
 import com.songkick.snippets.util.Debug;
 
 @SuppressWarnings("serial")
 /**
  * Servlet to provide an API for the UploadEmails program. 
  * 
- * The servlet should be called with the From address in the from param. 
+ * The servlet should be called with the From address and the Date the email was sent in the query params. 
  * The body of a call contains a serialized java.lang.String containing 
  * the body of the email. 
  */
 public class MailAPIServlet extends HttpServlet {
 	private MailHandler handler = new MailHandler();
 	private Authenticator authenticator = new Authenticator();
+	private DataStorage dataStore = new DataStorageHandler();
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		String from = req.getParameter("from");
 
-		if (!authenticator.isValidEmail(from)) {
+		if (!authenticator.isValidEmail(from, dataStore)) {
 			respond(resp, 401, "Unable to authenticate your email address");
 			return;
 		}
-		
+
 		String date = req.getParameter("date");
 
 		ObjectInputStream inStream = new ObjectInputStream(req.getInputStream());
 		try {
 			Serializable object = (Serializable) inStream.readObject();
-			handler.processMail(from, date, (String) object);
+			handler.processMail(from, date, (String) object, dataStore);
 
 			Debug.log("Got email from " + from + " on " + date + ": " + object);
 

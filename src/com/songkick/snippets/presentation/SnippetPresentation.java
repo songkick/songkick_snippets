@@ -6,13 +6,11 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.Query;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.SnippetInMemory;
 import com.songkick.snippets.model.User;
+import com.songkick.snippets.server.data.DataStorage;
 
 /**
  * Simple presentation layer for snippets web page
@@ -20,11 +18,6 @@ import com.songkick.snippets.model.User;
  * @author dancrow
  */
 public class SnippetPresentation {
-	public SnippetPresentation() {
-		ObjectifyService.register(Snippet.class);
-		ObjectifyService.register(User.class);
-	}
-
 	public void showWeekList(Writer out) throws IOException {
 		Long lastWeek = DateHandler.getCurrentWeek() - 1;
 
@@ -53,10 +46,10 @@ public class SnippetPresentation {
 	 * @param out
 	 * @throws IOException
 	 */
-	public void showUserList(PrintWriter out) throws IOException {
+	public void showUserList(PrintWriter out, DataStorage dataStore) throws IOException {
 		out.println("<b>By user:</b>");
 		out.print("<ul id=\"navlist\">");
-		List<User> users = getUsers();
+		List<User> users = dataStore.getUsers();
 		for (User user : users) {
 			out.print("<li><a href='snippets?person=" + user.getId() + "'>"
 					+ user.getBestName().replaceAll(" ", "&nbsp;") + "</a></li> ");
@@ -70,40 +63,25 @@ public class SnippetPresentation {
 	 * @param name
 	 * @return
 	 */
-	public String getSnippetsHTMLFor(Long userId) {
-		Objectify ofy = ObjectifyService.begin();
-		Query<User> q = ofy.query(User.class).filter("id", userId);
-		List<User> userList = q.list();
-		if (userList.size() != 1) {
+	public String getSnippetsHTMLFor(Long userId, DataStorage dataStore) {
+		User user = dataStore.getUserById(userId);
+
+		if (user == null) {
 			return "<html>Cannot locate user " + userId + "</html>";
 		}
 
-		User user = userList.get(0);
-
-		Query<Snippet> snippetQuery = ofy.query(Snippet.class).filter("user", user);
+		List<Snippet> snippets = dataStore.getSnippetsForUser(user);
 
 		String html = "<html>";
-		html += generateSnippetHTML(user, snippetQuery.list());
+		html += generateSnippetHTML(user, snippets);
 		html += "</html>";
 
 		return html;
 	}
 
-	public List<User> getUsers() {
-		Objectify ofy = ObjectifyService.begin();
-		Query<User> q = ofy.query(User.class);
-		List<User> results = new ArrayList<User>();
-
-		for (User user : q) {
-			results.add(user);
-		}
-
-		return results;
-	}
-
-	private UsersLists getUsersLists(Long week) {
-		List<SnippetInMemory> snippets = getSnippets(week);
-		List<User> users = getUsers();
+	private UsersLists getUsersLists(Long week, DataStorage dataStore) {
+		List<SnippetInMemory> snippets = getSnippets(week, dataStore);
+		List<User> users = dataStore.getUsers();
 		List<User> usersWithSnippet = new ArrayList<User>();
 
 		// Add all the snippets for this week to their appropriate users
@@ -140,16 +118,16 @@ public class SnippetPresentation {
 		}
 
 		UsersLists result = new UsersLists();
-		
+
 		result.setWithoutSnippets(usersWithoutSnippet);
 		result.setWithSnippets(usersWithSnippet);
-		
+
 		return result;
 	}
 
-	public String getSnippetsText(Long week) {
-		UsersLists usersLists = getUsersLists(week);
-		
+	public String getSnippetsText(Long week, DataStorage dataStore) {
+		UsersLists usersLists = getUsersLists(week, dataStore);
+
 		String text = "Snippets for " + DateHandler.weekToDate(week) + " to "
 				+ DateHandler.weekToDate(week + 1) + "\n\n";
 		for (User user : usersLists.getWithSnippets()) {
@@ -172,9 +150,9 @@ public class SnippetPresentation {
 	 * 
 	 * @return
 	 */
-	public String getSnippetsHTML(Long week) {
-		UsersLists usersLists = getUsersLists(week);
-		
+	public String getSnippetsHTML(Long week, DataStorage dataStore) {
+		UsersLists usersLists = getUsersLists(week, dataStore);
+
 		String text = "<html>";
 		text += "<link type=\"text/css\" rel=\"stylesheet\" href=\"SnippetReport.css\">";
 		text += "<title>Snippets for " + DateHandler.weekToDate(week) + " to "
@@ -218,12 +196,12 @@ public class SnippetPresentation {
 
 		return html;
 	}
-	
+
 	private String generateText(String html) {
 		html = html.replaceAll("\\<br\\>", "\n");
 		html = html.replaceAll("\\<div\\>", "");
 		html = html.replaceAll("\\</div\\>", "\n");
-		
+
 		return html;
 	}
 
@@ -231,8 +209,7 @@ public class SnippetPresentation {
 		String text = "";
 
 		text += "\nFrom: "
-				+ user.getBestName().replaceAll("<", "[").replaceAll(">", "]")
-				+ "\n";
+				+ user.getBestName().replaceAll("<", "[").replaceAll(">", "]") + "\n";
 
 		for (Snippet snippet : snippets) {
 			if (snippet.getSnippetText() != null) {
@@ -247,20 +224,20 @@ public class SnippetPresentation {
 	}
 
 	/**
-	 * Return the list of snippets for last week
+	 * Return the list of snippets for the specified week
 	 * 
 	 * @return
 	 */
-	private List<SnippetInMemory> getSnippets(Long week) {
-		Objectify ofy = ObjectifyService.begin();
-		Query<Snippet> q = ofy.query(Snippet.class).filter("weekNumber", week);
-		List<SnippetInMemory> snippets = new ArrayList<SnippetInMemory>();
-		for (Snippet snippet : q) {
+	private List<SnippetInMemory> getSnippets(Long week, DataStorage dataStore) {
+		
+		List<Snippet> snippets = dataStore.getSnippetsByWeek(week);
+		List<SnippetInMemory> snippetsInMemory = new ArrayList<SnippetInMemory>();
+		for (Snippet snippet : snippets) {
 			SnippetInMemory sim = new SnippetInMemory(snippet);
 			sim.prep();
-			snippets.add(sim);
+			snippetsInMemory.add(sim);
 		}
-		return snippets;
+		return snippetsInMemory;
 	}
 
 	class UsersLists {
