@@ -34,11 +34,13 @@ public class EditUserCheckDialog extends DialogBox {
 
 		panel.setWidth("34em");
 		
+		HorizontalPanel hPanel = new HorizontalPanel();
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 
 		buttonPanel.add(yesButton);
 		buttonPanel.add(noButton);
-		buttonPanel.setWidth("100%");
+		hPanel.setWidth("100%");
+		hPanel.add(buttonPanel);
 		buttonPanel.setStylePrimaryName("buttonPanel");
 
 		yesButton.addClickHandler(new ClickHandler() {
@@ -56,8 +58,9 @@ public class EditUserCheckDialog extends DialogBox {
 			}
 		});
 
-		panel.add(buttonPanel);
+		panel.add(hPanel);
 
 		setWidget(panel);
+		setText("Are you sure?");
 	}
 }

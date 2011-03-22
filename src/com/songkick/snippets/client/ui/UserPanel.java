@@ -17,8 +17,7 @@ import com.songkick.snippets.client.ui.util.UI;
 import com.songkick.snippets.shared.dao.UserDAO;
 
 /**
- * Dialog box for adding a new user or editing an existing user entry - see
- * UserList
+ * Panel that displays a new or existing User record
  * 
  * @author dancrow
  */
@@ -97,7 +96,7 @@ public class UserPanel extends VerticalPanel {
 		emailList.setWidth("20em");
 		return panel;
 	}
-	
+
 	public boolean hasChanged() {
 		return hasChanged;
 	}
@@ -119,12 +118,13 @@ public class UserPanel extends VerticalPanel {
 
 		setWidth("400px");
 		setStylePrimaryName("UserPanel");
-		
+
 		nameTextBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
 				hasChanged = true;
-			}});
+			}
+		});
 
 		buttonPanel.add(saveButton);
 		buttonPanel.setStylePrimaryName("buttonPanel");
@@ -132,6 +132,7 @@ public class UserPanel extends VerticalPanel {
 			@Override
 			public void onClick(ClickEvent event) {
 				addOrEditUser();
+				hasChanged = false;
 			}
 		});
 

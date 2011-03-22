@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.songkick.snippets.client.AdminService;
@@ -44,7 +45,7 @@ public class UserList extends VerticalPanel {
 
 		getUsers();
 	}
-
+	
 	private void createUI() {
 		this.setStylePrimaryName("UserList");
 		
@@ -53,17 +54,15 @@ public class UserList extends VerticalPanel {
 		Button editUserButton = UI.makeButton("Edit");
 		Button deleteUserButton = UI.makeButton("Delete");
 		Button viewSnippetButton = UI.makeButton("View");
-		HorizontalPanel topButtonPanel = new HorizontalPanel();
-		HorizontalPanel bottomButtonPanel = new HorizontalPanel();
+		Panel topButtonPanel = new UserListButtonPanel("Users:");
+		Panel bottomButtonPanel = new UserListButtonPanel("Snippets:");
 
 		add(UI.makeLabel("Current users:", "headerLabel"));
 		add(userListBox);
-		topButtonPanel.add(new Label("Users:"));
 		topButtonPanel.add(addUserButton);
 		topButtonPanel.add(editUserButton);
 		topButtonPanel.add(deleteUserButton);
 		topButtonPanel.add(sendReminderButton);
-		bottomButtonPanel.add(new Label("Snippets:"));
 		bottomButtonPanel.add(viewSnippetButton);
 		bottomButtonPanel.add(editSnippetsButton);
 		bottomButtonPanel.add(addSnippetButton);

@@ -12,6 +12,7 @@ public class UI {
 	public static Label makeLabel(String name, String css) {
 		Label label = new Label(name);
 		label.setStylePrimaryName(css);
+		label.setWordWrap(false);
 		return label;
 	}
 

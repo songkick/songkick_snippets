@@ -44,6 +44,8 @@ public class SnippetsServlet extends HttpServlet {
 				out.println(snippetPresentation.getSnippetsHTML(week, dataStore));
 			} else if (query.startsWith("person=")) {
 				Long id = Long.parseLong(query.substring(7, query.length()));
+				
+				out.println(snippetPresentation.getSnippetsHTMLFor(id, dataStore));
 			}
 			out.println("<p><a href='snippets'>Return to week view</a>");
 		}
