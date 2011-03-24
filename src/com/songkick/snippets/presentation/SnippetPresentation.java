@@ -14,7 +14,7 @@ import com.songkick.snippets.server.data.DataStorage;
 
 /**
  * Simple presentation layer for snippets web page
- * 
+ *
  * @author dancrow
  */
 public class SnippetPresentation {
@@ -42,7 +42,7 @@ public class SnippetPresentation {
 
 	/**
 	 * Show the list of users
-	 * 
+	 *
 	 * @param out
 	 * @throws IOException
 	 */
@@ -59,7 +59,7 @@ public class SnippetPresentation {
 
 	/**
 	 * Get all the snippets for a particular user, identified by id
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -147,7 +147,7 @@ public class SnippetPresentation {
 
 	/**
 	 * Get snippets for the specified week as HTML
-	 * 
+	 *
 	 * @return
 	 */
 	public String getSnippetsHTML(Long week, DataStorage dataStore) {
@@ -155,6 +155,10 @@ public class SnippetPresentation {
 
 		String text = "<html>";
 		text += "<link type=\"text/css\" rel=\"stylesheet\" href=\"SnippetReport.css\">";
+		text += "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js\"></script>";
+    text += "<script type=\"text/javascript\" src=\"http://github.github.com/github-flavored-markdown/scripts/showdown.js\"></script>";
+    text += "<script type=\"text/javascript\" src=\"markdown-conversion.js"></script>";
+    
 		text += "<title>Snippets for " + DateHandler.weekToDate(week) + " to "
 				+ DateHandler.weekToDate(week + 1) + "</title>";
 		text += "<h1>Songkick snippets for " + DateHandler.weekToDate(week)
@@ -187,7 +191,7 @@ public class SnippetPresentation {
 
 		for (Snippet snippet : snippets) {
 			if (snippet.getSnippetText() != null) {
-				html += "<p>" + snippet.getSnippetText() + "</p>";
+				html += "<p class=\"snippet-body\">" + snippet.getSnippetText() + "</p>";
 				if (snippet.getDate() != null) {
 					html += "<h3>Sent: " + snippet.getDate() + "</h3>";
 				}
@@ -225,11 +229,11 @@ public class SnippetPresentation {
 
 	/**
 	 * Return the list of snippets for the specified week
-	 * 
+	 *
 	 * @return
 	 */
 	private List<SnippetInMemory> getSnippets(Long week, DataStorage dataStore) {
-		
+
 		List<Snippet> snippets = dataStore.getSnippetsByWeek(week);
 		List<SnippetInMemory> snippetsInMemory = new ArrayList<SnippetInMemory>();
 		for (Snippet snippet : snippets) {
