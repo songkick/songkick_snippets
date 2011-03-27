@@ -67,7 +67,7 @@ public class ReminderHandler {
 	}
 
 	public List<User> getUsersWithoutSnippet(Long week, DataStorage dataStore) {
-		List<User> users = dataStore.getUsers();
+		List<User> users = dataStore.getCurrentUsers();
 		List<User> withCurrentSnippets = dataStore.getUsersWithSnippetFor(week);
 
 		List<User> toRemind = new ArrayList<User>();
@@ -105,7 +105,7 @@ public class ReminderHandler {
 	 * @param dataStore
 	 */
 	public void sendDigest(DataStorage dataStore) {
-		List<User> users = dataStore.getUsers();
+		List<User> users = dataStore.getCurrentUsers();
 		
 		queueRemindersTo(users, MailType.Digest);
 	}
@@ -120,7 +120,7 @@ public class ReminderHandler {
 	public void remindUser(String emailAddress, MailType type, DataStorage dataStore) {
 		Debug.log("remindUser. emailAddress: " + emailAddress);
 		
-		List<User> users = dataStore.getUsers();
+		List<User> users = dataStore.getCurrentUsers();
 		List<User> toRemind = new ArrayList<User>();
 		for (User user : users) {
 			if (user.getEmailAddress().equals(emailAddress)) {

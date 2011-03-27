@@ -28,4 +28,6 @@ public interface AdminServiceAsync {
 	public void replaceSnippet(UserDAO user, String snippet, Long weekNumber, AsyncCallback<Void> callback);
 	
 	public void getUsersToRemind(AsyncCallback<List<UserDAO>> callback);
+	
+	public void deleteSnippet(UserDAO user, Long weekNumber, AsyncCallback<Void> callback);
 }

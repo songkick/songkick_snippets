@@ -29,7 +29,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public List<UserDAO> getUserList() throws IllegalArgumentException {
-		List<User> users = dataStore.getUsers();
+		List<User> users = dataStore.getCurrentUsers();
 
 		List<UserDAO> userDAOs = new ArrayList<UserDAO>();
 		for (User next : users) {
@@ -74,7 +74,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 		Debug.log("AdminServiceImpl.updateUser: " + dao);
 
-		for (User user : dataStore.getUsers()) {
+		for (User user : dataStore.getCurrentUsers()) {
 			if (user.getId().equals(dao.getId())) {
 				updateUser(user, dao);
 				return;
@@ -87,7 +87,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		user.setName(dao.getName());
 		user.setAdmin(dao.isAdmin());
 		user.setStartDate(dao.getStartDate());
-		user.setEndDate(user.getEndDate());
+		user.setEndDate(dao.getEndDate());
 		if (dao.getEmailAddresses().size() > 0) {
 			user.setEmailAddress(dao.getEmailAddresses().get(0));
 			if (dao.getEmailAddresses().size() > 1) {
@@ -131,7 +131,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		if (user == null) {
 			return null;
 		}
-		
+
 		List<Snippet> snippets = dataStore.getSnippetsForUser(user);
 		List<String> results = new ArrayList<String>();
 
@@ -158,7 +158,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		} else {
 			snippet.setWeekNumber(new Long(week));
 		}
-		
+
 		dataStore.save(snippet);
 	}
 
@@ -168,7 +168,8 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 		Debug.log("getting users to remind: week=" + week);
 
-		List<User> toRemind = reminderHandler.getUsersWithoutSnippet(week, dataStore);
+		List<User> toRemind = reminderHandler.getUsersWithoutSnippet(week,
+				dataStore);
 		List<UserDAO> results = new ArrayList<UserDAO>();
 
 		for (User user : toRemind) {
@@ -185,13 +186,13 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		if (user == null) {
 			return;
 		}
-	
+
 		for (Snippet snippet : dataStore.getSnippetsForUser(user)) {
 			if (snippet.getWeekNumber().equals(weekNumber)) {
 				dataStore.delete(snippet);
 			}
 		}
-		
+
 		addSnippet(dao, snippetString, weekNumber.intValue());
 	}
 
@@ -210,5 +211,20 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		}
 
 		return null;
+	}
+
+	@Override
+	public void deleteSnippet(UserDAO dao, Long week) {
+		User user = getUser(dao);
+
+		if (user == null) {
+			return;
+		}
+
+		for (Snippet snippet : dataStore.getSnippetsForUser(user)) {
+			if (snippet.getWeekNumber().equals(week)) {
+				dataStore.delete(snippet);
+			}
+		}
 	}
 }

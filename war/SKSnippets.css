@@ -7,6 +7,10 @@ h1 {
 	text-align: left;
 }
 
+body {
+	font-family: Lucida Grande;
+}
+
 .sendButton {
 	display: block;
 	font-size: 16pt;
@@ -15,6 +19,13 @@ h1 {
 /** Most GWT widgets already have a style name defined */
 .gwt-DialogBox {
 	width: 400px;
+}
+
+.gwt-Button {
+	font-family: Lucinda Grande;
+	background: #84CD9C;
+	color: #004100;
+	font-size: 12px;
 }
 
 .dialogVPanel {
@@ -36,12 +47,12 @@ h1 {
 	padding-left: 12px;
 	padding-right: 8px;
 	background-color: #84CD9C;
-	border-bottom: 3px solid #43A865;
+	border-bottom: 3px solid #004100;
 	margin-bottom: 8px;
 	font-weight: bold;
 	font-size: 24px;
-	font-family: Garamond;
-	color: #5FBF7F;
+	font-family: Frutiger;
+	color: #004100;
 }
 
 .ButtonPanel {
@@ -65,17 +76,19 @@ h1 {
 .UserListButton {
 	padding-left: 3px;
 	padding-bottom: 3px;
+	background: #84CD9C;
+	color: #004100;
 }
 
 .headerLabel {
 	font-weight: bold;
 	font-size: 20px;
-	font-family: Garamond;
+	font-family: Frutiger;
 	padding-bottom: 2px;
 }
 
 .emailList {
-	border: 1px solid gray;	
+	border: 1px solid gray;
 }
 
 .dialogLabel {

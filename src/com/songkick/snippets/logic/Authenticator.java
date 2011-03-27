@@ -16,7 +16,7 @@ public class Authenticator {
 			return true;
 		}
 
-		List<com.songkick.snippets.model.User> users = dataStore.getUsers();
+		List<com.songkick.snippets.model.User> users = dataStore.getCurrentUsers();
 		
 		// Whitelist all existing users
 		for (com.songkick.snippets.model.User user: users) {
@@ -55,7 +55,7 @@ public class Authenticator {
 			return null;
 		}
 
-		List<com.songkick.snippets.model.User> users = dataStore.getUsers();
+		List<com.songkick.snippets.model.User> users = dataStore.getCurrentUsers();
 		for (com.songkick.snippets.model.User modelUser: users) {
 			if (modelUser.matchesEmail(user.getEmail()) && modelUser.isAdmin()) {
 				return null;

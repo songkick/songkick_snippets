@@ -51,6 +51,8 @@ public class UserPanel extends VerticalPanel {
 			adminCheckBox.setValue(false);
 			startDateBox.setDateString("");
 			endDateBox.setDateString("");
+			
+			emailList.clear();
 		}
 		hasChanged = false;
 	}

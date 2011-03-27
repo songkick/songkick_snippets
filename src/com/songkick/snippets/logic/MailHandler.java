@@ -80,7 +80,7 @@ public class MailHandler {
 	public User getOrCreateUser(String userEmail, DataStorage dataStore) {
 		Debug.log("From " + userEmail);
 
-		List<User> existingUsers = dataStore.getUsers();
+		List<User> existingUsers = dataStore.getCurrentUsers();
 
 		for (User user : existingUsers) {
 			if (user.matchesEmail(userEmail)) {

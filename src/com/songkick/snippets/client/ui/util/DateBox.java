@@ -12,8 +12,11 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.datepicker.client.DatePicker;
+import com.songkick.snippets.shared.SKDateFormat;
 
 public class DateBox extends HorizontalPanel {
+	private static final DateTimeFormat DATE_FORMAT = DateTimeFormat.getFormat(SKDateFormat.FORMAT);
+	
 	private String name = null;
 	private TextBox textBox = new TextBox();
 
@@ -44,8 +47,7 @@ public class DateBox extends HorizontalPanel {
 			public void onValueChange(ValueChangeEvent<Date> event) {
 				Date date = event.getValue();
 
-				String dateString = DateTimeFormat.getFormat(
-						DateTimeFormat.PredefinedFormat.DATE_LONG).format(date);
+				String dateString = DATE_FORMAT.format(date);
 				textBox.setText(dateString);
 
 				dialog.hide();
@@ -64,8 +66,6 @@ public class DateBox extends HorizontalPanel {
 	public Date getDate() {
 		String text = textBox.getText();
 
-		DateTimeFormat format = DateTimeFormat
-				.getFormat(DateTimeFormat.PredefinedFormat.DATE_LONG);
-		return format.parse(text);
+		return DATE_FORMAT.parse(text);
 	}
 }

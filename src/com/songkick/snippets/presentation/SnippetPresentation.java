@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.petebevin.markdown.MarkdownProcessor;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.SnippetInMemory;
@@ -46,10 +47,11 @@ public class SnippetPresentation {
 	 * @param out
 	 * @throws IOException
 	 */
-	public void showUserList(PrintWriter out, DataStorage dataStore) throws IOException {
+	public void showUserList(PrintWriter out, DataStorage dataStore)
+			throws IOException {
 		out.println("<b>By user:</b>");
 		out.print("<ul id=\"navlist\">");
-		List<User> users = dataStore.getUsers();
+		List<User> users = dataStore.getCurrentUsers();
 		for (User user : users) {
 			out.print("<li><a href='snippets?person=" + user.getId() + "'>"
 					+ user.getBestName().replaceAll(" ", "&nbsp;") + "</a></li> ");
@@ -81,7 +83,7 @@ public class SnippetPresentation {
 
 	private UsersLists getUsersLists(Long week, DataStorage dataStore) {
 		List<SnippetInMemory> snippets = getSnippets(week, dataStore);
-		List<User> users = dataStore.getUsers();
+		List<User> users = dataStore.getUsersForWeek(week);
 		List<User> usersWithSnippet = new ArrayList<User>();
 
 		// Add all the snippets for this week to their appropriate users
@@ -180,6 +182,7 @@ public class SnippetPresentation {
 
 	private String generateSnippetHTML(User user, List<Snippet> snippets) {
 		String html = "";
+		MarkdownProcessor markdown = new MarkdownProcessor();
 
 		html += "<h2>From: "
 				+ user.getBestName().replaceAll("<", "[").replaceAll(">", "]")
@@ -187,7 +190,7 @@ public class SnippetPresentation {
 
 		for (Snippet snippet : snippets) {
 			if (snippet.getSnippetText() != null) {
-				html += "<p>" + snippet.getSnippetText() + "</p>";
+				html += "<p>" + markdown.markdown(snippet.getSnippetText()) + "</p>";
 				if (snippet.getDate() != null) {
 					html += "<h3>Sent: " + snippet.getDate() + "</h3>";
 				}
@@ -229,7 +232,7 @@ public class SnippetPresentation {
 	 * @return
 	 */
 	private List<SnippetInMemory> getSnippets(Long week, DataStorage dataStore) {
-		
+
 		List<Snippet> snippets = dataStore.getSnippetsByWeek(week);
 		List<SnippetInMemory> snippetsInMemory = new ArrayList<SnippetInMemory>();
 		for (Snippet snippet : snippets) {

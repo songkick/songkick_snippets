@@ -6,6 +6,7 @@ import java.util.List;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Query;
+import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
 
@@ -15,7 +16,7 @@ import com.songkick.snippets.model.User;
  * @author dancrow
  * 
  */
-public class DataStorageHandler implements DataStorage {
+public class DataStorageHandler extends DataStorageBase implements DataStorage {
 
 	public DataStorageHandler() {
 		// Register the database classes used
@@ -34,14 +35,36 @@ public class DataStorageHandler implements DataStorage {
 		Objectify ofy = ObjectifyService.begin();
 		ofy.delete(object);
 	}
-
-	@Override
-	public List<User> getUsers() {
+	
+	@Override	
+	public List<User> getAllUsers() {
 		Objectify ofy = ObjectifyService.begin();
 		Query<User> users = ofy.query(User.class);
 
 		return users.list();
 	}
+
+	@Override
+	public List<User> getUsersForWeek(Long week) {
+		Objectify ofy = ObjectifyService.begin();
+		Query<User> users = ofy.query(User.class);
+
+		List<User> currentUsers = new ArrayList<User>();
+		
+		for (User user : users) {
+			if (isCurrentUser(user, week)) {
+				currentUsers.add(user);
+			}
+		}
+
+		return currentUsers;
+	}
+
+	@Override
+	public List<User> getCurrentUsers() {
+		return getUsersForWeek(DateHandler.getCurrentWeek());
+	}
+
 
 	@Override
 	public List<Snippet> getSnippets() {
@@ -84,20 +107,20 @@ public class DataStorageHandler implements DataStorage {
 
 		return userList.get(0);
 	}
-	
+
 	@Override
 	public List<Snippet> getSnippetsForUser(User user) {
 		Objectify ofy = ObjectifyService.begin();
 		Query<Snippet> snippetQuery = ofy.query(Snippet.class).filter("user", user);
-		
+
 		return snippetQuery.list();
 	}
-	
+
 	@Override
 	public List<Snippet> getSnippetsByWeek(Long week) {
 		Objectify ofy = ObjectifyService.begin();
 		Query<Snippet> q = ofy.query(Snippet.class).filter("weekNumber", week);
-		
+
 		return q.list();
 	}
 }

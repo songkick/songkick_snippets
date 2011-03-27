@@ -11,8 +11,6 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -51,7 +49,6 @@ public class UserList extends VerticalPanel {
 		
 		Button sendReminderButton = UI.makeButton("Remind");
 		Button addUserButton = UI.makeButton("Add");
-		Button editUserButton = UI.makeButton("Edit");
 		Button deleteUserButton = UI.makeButton("Delete");
 		Button viewSnippetButton = UI.makeButton("View");
 		Panel topButtonPanel = new UserListButtonPanel("Users:");
@@ -60,7 +57,6 @@ public class UserList extends VerticalPanel {
 		add(UI.makeLabel("Current users:", "headerLabel"));
 		add(userListBox);
 		topButtonPanel.add(addUserButton);
-		topButtonPanel.add(editUserButton);
 		topButtonPanel.add(deleteUserButton);
 		topButtonPanel.add(sendReminderButton);
 		bottomButtonPanel.add(viewSnippetButton);

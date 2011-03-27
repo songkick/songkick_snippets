@@ -10,7 +10,11 @@ public interface DataStorage {
 	
 	public void delete(Object object);
 	
-	public List<User> getUsers();
+	public List<User> getCurrentUsers();
+	
+	public List<User> getUsersForWeek(Long week);
+	
+	public List<User> getAllUsers();
 	
 	public List<Snippet> getSnippets();
 	

@@ -8,7 +8,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -18,7 +17,7 @@ import com.songkick.snippets.client.AdminService;
 import com.songkick.snippets.client.AdminServiceAsync;
 import com.songkick.snippets.shared.dao.UserDAO;
 
-public class EditSnippetsDialog extends DialogBox {
+public class EditSnippetsDialog extends SKDialog {
 	private final AdminServiceAsync adminService = GWT.create(AdminService.class);
 	
 	private ListBox weekListBox = new ListBox();
@@ -32,11 +31,10 @@ public class EditSnippetsDialog extends DialogBox {
 	}
 	
 	private void createUI() {
+		DialogButtonPanel buttonPanel = new DialogButtonPanel(this);
 		VerticalPanel outerPanel = new VerticalPanel();
-		
 		HorizontalPanel panel = new HorizontalPanel();
-		Button okButton = new Button("Save");
-		Button cancelButton = new Button("Cancel");
+		Button deleteButton = new Button("Delete");
 
 		VerticalPanel leftPanel = new VerticalPanel();
 		leftPanel.add(new Label("Week:"));
@@ -48,26 +46,16 @@ public class EditSnippetsDialog extends DialogBox {
 		panel.add(new Label("Snippet:"));
 		panel.add(snippetTextArea);
 
-		HorizontalPanel buttonPanel = new HorizontalPanel();
-
-		buttonPanel.add(cancelButton);
-		buttonPanel.add(okButton);
-
+		buttonPanel.addLeftButton(deleteButton);
+		
+		deleteButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				deleteSnippet();
+			}});
+		
 		outerPanel.add(panel);
 		outerPanel.add(buttonPanel);
-
-		okButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				saveSnippet();
-			}
-		});
-		cancelButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				EditSnippetsDialog.this.hide();
-			}
-		});
 
 		setWidget(outerPanel);
 		setText("Edit snippet for " + user.getName());
@@ -117,6 +105,21 @@ public class EditSnippetsDialog extends DialogBox {
 			}});
 	}
 	
+	private void deleteSnippet() {
+		if (displayedWeek!=-1) {
+			adminService.deleteSnippet(user, displayedWeek, new AsyncCallback<Void>() {
+				@Override
+				public void onFailure(Throwable caught) {
+					Window.alert("Cannot contact server: " + caught);
+				}
+
+				@Override
+				public void onSuccess(Void result) {
+					EditSnippetsDialog.this.hide();
+				}});
+		}
+	}
+	
 	private void saveSnippet() {
 		if (displayedWeek!=-1) {
 		String snippet = snippetTextArea.getText();
@@ -132,5 +135,11 @@ public class EditSnippetsDialog extends DialogBox {
 				EditSnippetsDialog.this.hide();
 			}});
 		}
+	}
+
+	@Override
+	public boolean save() {
+		saveSnippet();
+		return true;
 	}
 }

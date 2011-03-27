@@ -3,10 +3,11 @@ package com.songkick.snippets.server.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
 
-public class DataStorageMock implements DataStorage {
+public class DataStorageMock extends DataStorageBase implements DataStorage {
 	private Long idCounter = 1L;
 	private List<Object> store = new ArrayList<Object>();
 
@@ -39,20 +40,26 @@ public class DataStorageMock implements DataStorage {
 	}
 
 	@Override
-	public List<User> getUsers() {
-		List<User> users = new ArrayList<User>();
+	public List<User> getCurrentUsers() {
+		return getUsersForWeek(DateHandler.getCurrentWeek());
+	}
 
-		for (Object obj : store) {
-			if (obj instanceof User) {
-				users.add((User) obj);
+	@Override
+	public List<User> getUsersForWeek(Long week) {
+		List<User> users = getAllUsers();
+		List<User> current = new ArrayList<User>();
+		
+		for (User user: users) {
+			if (isCurrentUser(user, week)) {
+				current.add(user);
 			}
 		}
-
-		return users;
+		
+		return current;
 	}
 
 	public boolean hasUser(String email) {
-		List<User> users = getUsers();
+		List<User> users = getCurrentUsers();
 
 		for (User user : users) {
 			if (user.matchesEmail(email)) {
@@ -84,5 +91,18 @@ public class DataStorageMock implements DataStorage {
 	public List<Snippet> getSnippetsByWeek(Long week) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<User> getAllUsers() {
+		List<User> users = new ArrayList<User>();
+
+		for (Object obj : store) {
+			if (obj instanceof User) {
+				users.add((User) obj);
+			}
+		}
+
+		return users;
 	}
 }
