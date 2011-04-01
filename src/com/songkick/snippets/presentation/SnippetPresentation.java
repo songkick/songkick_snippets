@@ -180,9 +180,33 @@ public class SnippetPresentation {
 		return text;
 	}
 
+	/**
+	 * Convert markdown to HTML. Warning: this includes a rather awkward hack to
+	 * maintain backwards compatiblity with existing snippets.
+	 * 
+	 * @param text
+	 * @return
+	 */
+	private static String addMarkdown(String text) {
+		String result = text;
+
+		MarkdownProcessor markdown = new MarkdownProcessor();
+		result = result.replaceAll("<br>", "\n");
+
+		result = markdown.markdown(result);
+
+		// Hack: test top see whether "meaningful" HTML tags were added by markdown
+		// conversion. If no tags were added, the original text very likely requires
+		// the <br> tags to display correctly, so restore them
+		if (!result.contains("<ul>") && !result.contains("<h")) {
+			return text;
+		}
+
+		return result;
+	}
+
 	private String generateSnippetHTML(User user, List<Snippet> snippets) {
 		String html = "";
-		MarkdownProcessor markdown = new MarkdownProcessor();
 
 		html += "<h2>From: "
 				+ user.getBestName().replaceAll("<", "[").replaceAll(">", "]")
@@ -190,7 +214,7 @@ public class SnippetPresentation {
 
 		for (Snippet snippet : snippets) {
 			if (snippet.getSnippetText() != null) {
-				html += "<p>" + markdown.markdown(snippet.getSnippetText()) + "</p>";
+				html += "<p>" + addMarkdown(snippet.getSnippetText()) + "</p>";
 				if (snippet.getDate() != null) {
 					html += "<h3>Sent: " + snippet.getDate() + "</h3>";
 				}

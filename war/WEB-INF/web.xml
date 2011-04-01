@@ -79,7 +79,16 @@
 			<role-name>admin</role-name>
 		</auth-constraint>
 	</security-constraint>
-	
+
+	<!-- Servlet to allow programmatic access to data -->
+	<servlet>
+		<servlet-name>accesshandler</servlet-name>
+		<servlet-class>com.songkick.snippets.servlet.AccessServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>accesshandler</servlet-name>
+		<url-pattern>/access</url-pattern>
+	</servlet-mapping>
 	
 	<!-- Mail handling API servlet -->
 	<servlet>
