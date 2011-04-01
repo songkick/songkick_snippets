@@ -159,7 +159,7 @@ public class SnippetPresentation {
 		text += "<link type=\"text/css\" rel=\"stylesheet\" href=\"SnippetReport.css\">";
 		text += "<title>Snippets for " + DateHandler.weekToDate(week) + " to "
 				+ DateHandler.weekToDate(week + 1) + "</title>";
-		text += "<h1>Songkick snippets for " + DateHandler.weekToDate(week)
+		text += "<h1 class=\"internal\">Songkick snippets for " + DateHandler.weekToDate(week)
 				+ " to " + DateHandler.weekToDate(week + 1) + "</h1>";
 		text += "<body>";
 		for (User user : usersLists.getWithSnippets()) {
@@ -195,7 +195,7 @@ public class SnippetPresentation {
 
 		result = markdown.markdown(result);
 
-		// Hack: test top see whether "meaningful" HTML tags were added by markdown
+		// Hack: test to see whether "meaningful" HTML tags were added by markdown
 		// conversion. If no tags were added, the original text very likely requires
 		// the <br> tags to display correctly, so restore them
 		if (!result.contains("<ul>") && !result.contains("<h")) {

@@ -1,4 +1,10 @@
 h1 {
+	font-size: 1em;
+	font-weight: bold;
+	font-family: "Arial";
+}
+
+h1.internal {
 	font-size: 2em;
 	font-weight: bold;
 	font-family: "Arial";
