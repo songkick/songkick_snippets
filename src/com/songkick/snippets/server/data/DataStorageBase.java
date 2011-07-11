@@ -5,7 +5,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.songkick.common.shared.SKDateFormat;
-import com.songkick.common.util.Debug;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.User;
 
@@ -20,8 +19,17 @@ public class DataStorageBase {
 		return formatter.parseDateTime(year + "/" + month + "/" + day);
 	}
 
+	/**
+	 * Parse a date from a string. Because the backend and the UI disagreed for a
+	 * while about the standard date format to use, the code has to be able to
+	 * parse either format
+	 * 
+	 * @param dateString
+	 * @param defaultDate
+	 * @return
+	 */
 	private DateTime parseDate(String dateString, DateTime defaultDate) {
-		if (dateString==null || dateString.length()<1) {
+		if (dateString == null || dateString.length() < 1) {
 			return defaultDate;
 		}
 		try {
@@ -35,22 +43,22 @@ public class DataStorageBase {
 		return defaultDate;
 	}
 
+	/**
+	 * Is this user current - is the current date after their start date and
+	 * before their end date?
+	 * 
+	 * @param user
+	 * @param week
+	 * @return
+	 */
 	protected boolean isCurrentUser(User user, Long week) {
-		Debug.log("Checking if user " + user + " is current");
 		DateTime startDate = parseDate(user.getStartDate(), createDate(1, 1, 1900));
-
 		DateTime endDate = parseDate(user.getEndDate(), createDate(1, 1, 9999));
-
 		DateTime now = DateHandler.weekToDateTime(week);
 
-		Debug.log("Date is " + now);
-
 		if (now.isAfter(startDate) && now.isBefore(endDate)) {
-			Debug.log("User is current");
 			return true;
 		}
-
-		Debug.log("User is not current");
 
 		return false;
 	}
