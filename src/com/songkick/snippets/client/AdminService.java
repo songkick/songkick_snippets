@@ -4,14 +4,15 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
-import com.songkick.snippets.shared.dao.UserDAO;
+import com.songkick.common.model.UserDAO;
 
 /**
  * The client side stub for the RPC service.
  */
 @RemoteServiceRelativePath("admin")
 public interface AdminService extends RemoteService {
-	List<UserDAO> getUserList() throws IllegalArgumentException;
+	List<UserDAO> getCurrentUserList() throws IllegalArgumentException;
+	List<UserDAO> getFullUserList() throws IllegalArgumentException;
 	
 	void addUser(UserDAO dao);
 	void updateUser(UserDAO dao);

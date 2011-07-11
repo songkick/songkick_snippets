@@ -1,15 +1,15 @@
 package com.songkick.snippets.model;
 
+import com.songkick.common.util.Debug;
+import com.songkick.common.util.MailSender;
 import com.songkick.snippets.logic.DateHandler;
-import com.songkick.snippets.logic.MailSender;
 import com.songkick.snippets.logic.ReminderHandler.MailType;
 import com.songkick.snippets.presentation.SnippetPresentation;
 import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.server.data.DataStorageHandler;
-import com.songkick.snippets.util.Debug;
 
 public class ReminderEmail {
-	private static MailSender mailSender = new MailSender();
+	private static MailSender mailSender = new MailSender("snippet@songkick.com", "Snippets");
 	private static DataStorage dataStore = new DataStorageHandler();
 	private static final boolean FAKE_SENDING = false;
 

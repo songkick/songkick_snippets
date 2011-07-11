@@ -10,15 +10,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.songkick.snippets.logic.MailSender;
-import com.songkick.snippets.util.Debug;
+import com.songkick.common.util.Debug;
+import com.songkick.common.util.MailSender;
 
 @SuppressWarnings("serial")
 /**
  * Send a "redirect" email alerting users to the new snippet@songkick.com email address
  */
 public class MailHandlerServlet extends HttpServlet {
-	private MailSender sender = new MailSender();
+	private MailSender sender = new MailSender("snippet@songkick.com", "Snippets");
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {

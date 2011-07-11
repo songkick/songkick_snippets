@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.songkick.common.model.UserDAO;
+import com.songkick.common.util.Debug;
 import com.songkick.snippets.client.AdminService;
 import com.songkick.snippets.logic.Authenticator;
 import com.songkick.snippets.logic.DateHandler;
@@ -13,8 +15,6 @@ import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
 import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.server.data.DataStorageHandler;
-import com.songkick.snippets.shared.dao.UserDAO;
-import com.songkick.snippets.util.Debug;
 
 /**
  * The server side implementation of the RPC service.
@@ -28,8 +28,20 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 	private DataStorage dataStore = new DataStorageHandler();
 
 	@Override
-	public List<UserDAO> getUserList() throws IllegalArgumentException {
+	public List<UserDAO> getCurrentUserList() throws IllegalArgumentException {
 		List<User> users = dataStore.getCurrentUsers();
+
+		List<UserDAO> userDAOs = new ArrayList<UserDAO>();
+		for (User next : users) {
+			userDAOs.add(createDAO(next));
+		}
+
+		return userDAOs;
+	}
+	
+	@Override
+	public List<UserDAO> getFullUserList() throws IllegalArgumentException {
+		List<User> users = dataStore.getAllUsers();
 
 		List<UserDAO> userDAOs = new ArrayList<UserDAO>();
 		for (User next : users) {

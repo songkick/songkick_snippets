@@ -2,7 +2,7 @@ package com.songkick.snippets.client.ui;
 
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.songkick.snippets.client.ui.util.UI;
+import com.songkick.common.client.ui.util.UI;
 
 public class UserListButtonPanel extends HorizontalPanel {
 	private HorizontalPanel buttonPanel = null;

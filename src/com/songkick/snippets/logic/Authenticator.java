@@ -5,8 +5,8 @@ import java.util.List;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.songkick.common.util.Debug;
 import com.songkick.snippets.server.data.DataStorage;
-import com.songkick.snippets.util.Debug;
 
 public class Authenticator {
 

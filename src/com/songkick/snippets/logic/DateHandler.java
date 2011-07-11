@@ -5,8 +5,8 @@ import org.joda.time.Weeks;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.songkick.snippets.shared.SKDateFormat;
-import com.songkick.snippets.util.Debug;
+import com.songkick.common.shared.SKDateFormat;
+import com.songkick.common.util.Debug;
 
 public class DateHandler {
 	// This is the base date for all week calculations - epoch is the first Monday

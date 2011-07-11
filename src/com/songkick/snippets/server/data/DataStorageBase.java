@@ -4,48 +4,52 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.songkick.common.shared.SKDateFormat;
+import com.songkick.common.util.Debug;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.User;
-import com.songkick.snippets.util.Debug;
 
 public class DataStorageBase {
-	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("MMM dd, yyyy");
-	
+	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat
+			.forPattern(SKDateFormat.FORMAT);
+	private static final DateTimeFormatter OLD_FORMAT = DateTimeFormat
+			.forPattern("MM/dd/yyyy");
+
 	private DateTime createDate(int month, int day, int year) {
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
 		return formatter.parseDateTime(year + "/" + month + "/" + day);
 	}
 
+	private DateTime parseDate(String dateString, DateTime defaultDate) {
+		if (dateString==null || dateString.length()<1) {
+			return defaultDate;
+		}
+		try {
+			return DATE_FORMAT.parseDateTime(dateString);
+		} catch (Exception e) {
+			try {
+				return OLD_FORMAT.parseDateTime(dateString);
+			} catch (Exception e1) {
+			}
+		}
+		return defaultDate;
+	}
+
 	protected boolean isCurrentUser(User user, Long week) {
-		Debug.log("Checking user " + user + " is current");
-		DateTime startDate = createDate(1, 1, 1900);
+		Debug.log("Checking if user " + user + " is current");
+		DateTime startDate = parseDate(user.getStartDate(), createDate(1, 1, 1900));
 
-		if (user.getStartDate() != null) {
-			try {
-				startDate = DATE_FORMAT.parseDateTime(user.getStartDate());
-			} catch (Exception e) {
-			}
-		}
+		DateTime endDate = parseDate(user.getEndDate(), createDate(1, 1, 9999));
 
-		DateTime endDate = createDate(1, 1, 9999);
-		if (user.getEndDate() != null) {
-			Debug.log("user.getEndDate is " + user.getEndDate());
-			try {
-				endDate = DATE_FORMAT.parseDateTime(user.getEndDate());
-			} catch (Exception e) {
-				Debug.log("Parsed to: " + endDate);
-			}
-		}
-		
 		DateTime now = DateHandler.weekToDateTime(week);
 
 		Debug.log("Date is " + now);
-		
+
 		if (now.isAfter(startDate) && now.isBefore(endDate)) {
 			Debug.log("User is current");
 			return true;
 		}
-		
+
 		Debug.log("User is not current");
 
 		return false;

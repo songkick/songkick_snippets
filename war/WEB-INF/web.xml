@@ -89,6 +89,16 @@
 		<servlet-name>accesshandler</servlet-name>
 		<url-pattern>/access</url-pattern>
 	</servlet-mapping>
+
+	<!-- Servlet to allow programmatic access to users -->
+	<servlet>
+		<servlet-name>userapihandler</servlet-name>
+		<servlet-class>com.songkick.snippets.servlet.UserAPIServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>userapihandler</servlet-name>
+		<url-pattern>/users</url-pattern>
+	</servlet-mapping>
 	
 	<!-- Mail handling API servlet -->
 	<servlet>

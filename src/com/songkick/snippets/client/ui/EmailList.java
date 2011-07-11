@@ -3,14 +3,14 @@ package com.songkick.snippets.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.songkick.snippets.shared.dao.UserDAO;
+import com.songkick.common.model.UserDAO;
 
 public class EmailList extends VerticalPanel {
 	private UserDAO user = null;
-	private VerticalPanel list = new VerticalPanel();
+	private ListBox list = new ListBox();
 
 	public EmailList() {
 		createUI();
@@ -33,7 +33,7 @@ public class EmailList extends VerticalPanel {
 
 		scrollPanel.setWidget(list);
 		list.setStylePrimaryName("emailList");
-		list.setWidth("100%");
+		list.setWidth("100%");list.setVisibleItemCount(5);
 
 		if (user != null) {
 			for (String email : user.getEmailAddresses()) {
@@ -49,20 +49,14 @@ public class EmailList extends VerticalPanel {
 	public List<String> getEmails() {
 		List<String> emails = new ArrayList<String>();
 		
-		for (int i=0; i<list.getWidgetCount(); i++) {
-			RadioButton button = (RadioButton) list.getWidget(i);
-			
-			emails.add(button.getText());
+		for (int i=0; i<list.getItemCount(); i++) {
+			emails.add(list.getItemText(i));
 		}
 		
 		return emails;
 	}
 
 	public void addEmail(String email) {
-		RadioButton button = new RadioButton("emailList");
-
-		button.setText(email);
-		list.add(button);
+		list.addItem(email);
 	}
-
 }

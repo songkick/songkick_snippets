@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/SKSnippets/war/WEB-INF/lib/mail.jar"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="common-src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
@@ -11,10 +12,11 @@
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/Snippets/war/WEB-INF/lib/objectify-2.2.3.jar"/>
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/SKSnippets/war/WEB-INF/lib/junit-4.8.1.jar"/>
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/SKSnippets/war/WEB-INF/lib/commons-io-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/Applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle.1.4.0_1.4.0.v201012021502/appengine-java-sdk-1.4.0/lib/testing/appengine-testing.jar"/>
-	<classpathentry kind="lib" path="/Applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle.1.4.0_1.4.0.v201012021502/appengine-java-sdk-1.4.0/lib/impl/appengine-api-labs.jar"/>
-	<classpathentry kind="lib" path="/Applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle.1.4.0_1.4.0.v201012021502/appengine-java-sdk-1.4.0/lib/impl/appengine-api-stubs.jar"/>
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.4.3.v201103311225/appengine-java-sdk-1.4.3/lib/impl/appengine-api-labs.jar"/>
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.4.3.v201103311225/appengine-java-sdk-1.4.3/lib/impl/appengine-api-stubs.jar"/>
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/SKSnippets/war/WEB-INF/lib/markdownj-1.0.2b4-0.3.0.jar"/>
 	<classpathentry kind="lib" path="/Users/dancrow/Documents/workspace/SKSnippets/war/WEB-INF/lib/json_simple-1.1.jar"/>
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.4.3.v201103311225/appengine-java-sdk-1.4.3/lib/impl/appengine-api.jar"/>
+	<classpathentry kind="lib" path="/Applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.4.3.v201103311225/appengine-java-sdk-1.4.3/lib/testing/appengine-testing.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

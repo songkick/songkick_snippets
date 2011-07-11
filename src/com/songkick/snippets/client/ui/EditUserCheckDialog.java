@@ -6,8 +6,8 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.songkick.snippets.client.ui.util.UI;
-import com.songkick.snippets.shared.dao.UserDAO;
+import com.songkick.common.client.ui.util.UI;
+import com.songkick.common.model.UserDAO;
 
 public class EditUserCheckDialog extends DialogBox {
 	private UserPanel userPanel = null;

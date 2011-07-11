@@ -6,9 +6,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.songkick.common.util.Debug;
 import com.songkick.snippets.logic.ReminderHandler.MailType;
 import com.songkick.snippets.model.ReminderEmail;
-import com.songkick.snippets.util.Debug;
 
 @SuppressWarnings("serial")
 public class ReminderTaskQueue extends HttpServlet {

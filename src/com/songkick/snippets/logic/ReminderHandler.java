@@ -9,9 +9,9 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.taskqueue.TaskOptions.Method;
+import com.songkick.common.util.Debug;
 import com.songkick.snippets.model.User;
 import com.songkick.snippets.server.data.DataStorage;
-import com.songkick.snippets.util.Debug;
 
 public class ReminderHandler {
 	public enum MailType {

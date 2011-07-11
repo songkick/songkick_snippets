@@ -13,9 +13,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.songkick.common.client.ui.util.DialogButtonPanel;
+import com.songkick.common.client.ui.util.SKDialog;
+import com.songkick.common.model.UserDAO;
 import com.songkick.snippets.client.AdminService;
 import com.songkick.snippets.client.AdminServiceAsync;
-import com.songkick.snippets.shared.dao.UserDAO;
 
 public class EditSnippetsDialog extends SKDialog {
 	private final AdminServiceAsync adminService = GWT.create(AdminService.class);

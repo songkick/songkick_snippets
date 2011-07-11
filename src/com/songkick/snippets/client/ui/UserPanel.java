@@ -12,9 +12,9 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.songkick.snippets.client.ui.util.DateBox;
-import com.songkick.snippets.client.ui.util.UI;
-import com.songkick.snippets.shared.dao.UserDAO;
+import com.songkick.common.client.ui.util.DateBox;
+import com.songkick.common.client.ui.util.UI;
+import com.songkick.common.model.UserDAO;
 
 /**
  * Panel that displays a new or existing User record
@@ -68,7 +68,7 @@ public class UserPanel extends VerticalPanel {
 		Panel panel = new HorizontalPanel();
 		Panel buttonPanel = new VerticalPanel();
 		final Button addButton = UI.makeButton("Add");
-		final Button deleteButton = UI.makeButton("Delete");
+		final Button deleteButton = UI.makeButton("Delete", "Permanently delete the user, removing all their snippets");
 
 		emailList = new EmailList();
 

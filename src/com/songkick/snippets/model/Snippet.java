@@ -1,5 +1,7 @@
 package com.songkick.snippets.model;
 
+
+
 import javax.persistence.Id;
 
 import com.googlecode.objectify.Key;

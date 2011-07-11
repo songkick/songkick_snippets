@@ -9,10 +9,10 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.songkick.common.util.Debug;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
 import com.songkick.snippets.server.data.DataStorage;
-import com.songkick.snippets.util.Debug;
 
 /**
  * Does the core work of handling incoming snippet emails

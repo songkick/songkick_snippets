@@ -41,6 +41,10 @@ body {
 	margin: 15px 6px 6px;
 }
 
+.StandardIndent {
+	padding-left: 12px;
+}
+
 .Title {
 	padding-top: 10px;
 	padding-bottom: 10px;

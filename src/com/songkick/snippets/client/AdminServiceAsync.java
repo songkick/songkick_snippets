@@ -3,14 +3,16 @@ package com.songkick.snippets.client;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.songkick.snippets.shared.dao.UserDAO;
+import com.songkick.common.model.UserDAO;
 
 /**
  * The async counterpart of <code>GreetingService</code>.
  */
 public interface AdminServiceAsync {
-	void getUserList(AsyncCallback<List<UserDAO>> callback)
+	void getCurrentUserList(AsyncCallback<List<UserDAO>> callback)
 			throws IllegalArgumentException;
+	void getFullUserList(AsyncCallback<List<UserDAO>> callback)
+	throws IllegalArgumentException;
 	
 	void addUser(UserDAO dao, AsyncCallback<Void> callback);
 	void updateUser(UserDAO dao, AsyncCallback<Void> callback);

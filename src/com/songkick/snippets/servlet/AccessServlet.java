@@ -11,11 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import com.songkick.common.util.Debug;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
 import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.server.data.DataStorageHandler;
-import com.songkick.snippets.util.Debug;
 
 @SuppressWarnings("serial")
 /**

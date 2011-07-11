@@ -12,10 +12,10 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.songkick.common.client.ui.util.UI;
+import com.songkick.common.model.UserDAO;
 import com.songkick.snippets.client.AdminService;
 import com.songkick.snippets.client.AdminServiceAsync;
-import com.songkick.snippets.client.ui.util.UI;
-import com.songkick.snippets.shared.dao.UserDAO;
 
 public class SnippetControlPanel extends VerticalPanel {
 	private final AdminServiceAsync adminService = GWT.create(AdminService.class);
@@ -105,12 +105,16 @@ public class SnippetControlPanel extends VerticalPanel {
 
 		panel.setSize("100%", "100%");
 		panel.add(userList);
-		panel.add(thisWeekLink);
+		
+		VerticalPanel linkPanel = new VerticalPanel();
+		linkPanel.add(thisWeekLink);
+		linkPanel.setStylePrimaryName("StandardIndent");
+		panel.add(linkPanel);
 
 		return panel;
 	}
 
 	private void setWeek(Long week) {
-		thisWeekLink.setHref("snippets?" + week);
+		thisWeekLink.setHref("snippets?week=" + week);
 	}
 }

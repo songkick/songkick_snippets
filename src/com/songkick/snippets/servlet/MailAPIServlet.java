@@ -9,11 +9,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.songkick.common.util.Debug;
+import com.songkick.snippets.logic.AdminNotifier;
 import com.songkick.snippets.logic.Authenticator;
 import com.songkick.snippets.logic.MailHandler;
 import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.server.data.DataStorageHandler;
-import com.songkick.snippets.util.Debug;
 
 @SuppressWarnings("serial")
 /**
@@ -27,6 +28,7 @@ public class MailAPIServlet extends HttpServlet {
 	private MailHandler handler = new MailHandler();
 	private Authenticator authenticator = new Authenticator();
 	private DataStorage dataStore = new DataStorageHandler();
+	private AdminNotifier adminNotifier = new AdminNotifier();
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
@@ -43,6 +45,12 @@ public class MailAPIServlet extends HttpServlet {
 		try {
 			Serializable object = (Serializable) inStream.readObject();
 			handler.processMail(from, date, (String) object, dataStore);
+
+			if (((String) object).length() < 2) {
+				adminNotifier.notify("short snippet received",
+						"Received a very short (<2 characters) snippet from " + from
+								+ " with date " + date);
+			}
 
 			Debug.log("Got email from " + from + " on " + date + ": " + object);
 

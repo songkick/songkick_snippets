@@ -36,4 +36,11 @@
 		<nature>com.google.appengine.eclipse.core.gaeNature</nature>
 		<nature>com.google.gwt.eclipse.core.gwtNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>common-src</name>
+			<type>2</type>
+			<location>/Users/dancrow/Documents/workspace/SKCommon/src</location>
+		</link>
+	</linkedResources>
 </projectDescription>
