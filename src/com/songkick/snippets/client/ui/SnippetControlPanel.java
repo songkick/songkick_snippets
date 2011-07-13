@@ -25,6 +25,7 @@ public class SnippetControlPanel extends VerticalPanel {
 	private UserList userList = null;
 	private Button showUsersToRemindButton = UI
 			.makeButton("Show users to remind");
+	private Button generateDigestButton = UI.makeButton("Generate Digest");
 
 	public SnippetControlPanel() {
 		createUI();
@@ -71,6 +72,7 @@ public class SnippetControlPanel extends VerticalPanel {
 
 		panel.add(UI.makeLabel("Actions", "headerLabel"));
 		panel.add(showUsersToRemindButton);
+		panel.add(generateDigestButton);
 		panel.setStylePrimaryName("UserList");
 
 		showUsersToRemindButton.addClickHandler(new ClickHandler() {
@@ -96,6 +98,21 @@ public class SnippetControlPanel extends VerticalPanel {
 				});
 			}
 		});
+		
+		generateDigestButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				adminService.getDigest(new AsyncCallback<String>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						Window.alert("Connection failed");
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						Window.alert(result);
+					}});
+			}});
 
 		return panel;
 	}

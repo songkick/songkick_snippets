@@ -54,7 +54,7 @@ public class AddEmailDialog extends DialogBox {
 
 	private void addEmail() {
 		String email = emailTextBox.getText().trim();
-		emailListBox.addEmail(email);
+		emailListBox.addEmailToList(email);
 		hide();
 	}
 }

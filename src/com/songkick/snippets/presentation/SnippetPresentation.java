@@ -256,12 +256,11 @@ public class SnippetPresentation {
 	 * @return
 	 */
 	private List<SnippetInMemory> getSnippets(Long week, DataStorage dataStore) {
-
 		List<Snippet> snippets = dataStore.getSnippetsByWeek(week);
 		List<SnippetInMemory> snippetsInMemory = new ArrayList<SnippetInMemory>();
 		for (Snippet snippet : snippets) {
 			SnippetInMemory sim = new SnippetInMemory(snippet);
-			sim.prep();
+			sim.prep(dataStore);
 			snippetsInMemory.add(sim);
 		}
 		return snippetsInMemory;

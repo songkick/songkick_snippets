@@ -32,4 +32,7 @@ public interface AdminServiceAsync {
 	public void getUsersToRemind(AsyncCallback<List<UserDAO>> callback);
 	
 	public void deleteSnippet(UserDAO user, Long weekNumber, AsyncCallback<Void> callback);
+	
+	public void getDigest(AsyncCallback<String> callback);
+	public void sendDigestToUser(UserDAO user, AsyncCallback<Void> callback);
 }

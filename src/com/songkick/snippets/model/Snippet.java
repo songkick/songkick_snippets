@@ -66,6 +66,6 @@ public class Snippet {
 	}
 
 	public String toString() {
-		return "Week " + weekNumber + ": " + snippetText;
+		return "Week " + weekNumber + ": " + snippetText + " User=" + user;
 	}
 }

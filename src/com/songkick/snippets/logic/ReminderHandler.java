@@ -53,7 +53,7 @@ public class ReminderHandler {
 		return email.substring(0, addressEnd);
 	}
 
-	private void queueRemindersTo(List<User> users, MailType mailType) {
+	public void queueRemindersTo(List<User> users, MailType mailType) {
 		Debug.log("Users to remind: " + users);
 
 		for (User user : users) {

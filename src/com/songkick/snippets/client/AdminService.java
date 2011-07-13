@@ -35,4 +35,7 @@ public interface AdminService extends RemoteService {
 	public String getSnippet(UserDAO user, Long weekNumber);
 	
 	public void deleteSnippet(UserDAO user, Long week);
+	
+	public String getDigest();
+	public void sendDigestToUser(UserDAO user);
 }

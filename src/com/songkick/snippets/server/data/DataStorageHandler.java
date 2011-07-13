@@ -35,13 +35,26 @@ public class DataStorageHandler extends DataStorageBase implements DataStorage {
 		Objectify ofy = ObjectifyService.begin();
 		ofy.delete(object);
 	}
-	
-	@Override	
+
+	@Override
 	public List<User> getAllUsers() {
 		Objectify ofy = ObjectifyService.begin();
 		Query<User> users = ofy.query(User.class);
+		List<User> results = new ArrayList<User>();
 
-		return users.list();
+		for (User user : users) {
+			results.add(transformUser(user));
+		}
+
+		return results;
+	}
+
+	private User transformUser(User user) {
+		/*if (user.getEmailAddress() != null) {
+			user.getPrimaryEmails().add(user.getEmailAddress());
+			user.setEmailAddress(null);
+		}*/
+		return user;
 	}
 
 	@Override
@@ -50,10 +63,10 @@ public class DataStorageHandler extends DataStorageBase implements DataStorage {
 		Query<User> users = ofy.query(User.class);
 
 		List<User> currentUsers = new ArrayList<User>();
-		
+
 		for (User user : users) {
 			if (isCurrentUser(user, week)) {
-				currentUsers.add(user);
+				currentUsers.add(transformUser(user));
 			}
 		}
 
@@ -64,7 +77,6 @@ public class DataStorageHandler extends DataStorageBase implements DataStorage {
 	public List<User> getCurrentUsers() {
 		return getUsersForWeek(DateHandler.getCurrentWeek());
 	}
-
 
 	@Override
 	public List<Snippet> getSnippets() {
@@ -105,7 +117,13 @@ public class DataStorageHandler extends DataStorageBase implements DataStorage {
 			return null;
 		}
 
-		return userList.get(0);
+		return transformUser(userList.get(0));
+	}
+	
+	@Override
+	public User getUserForSnippet(Snippet snippet) {
+		Objectify ofy = ObjectifyService.begin();
+		return ofy.get(snippet.getUser());
 	}
 
 	@Override

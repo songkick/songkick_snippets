@@ -67,9 +67,10 @@ public class UserPanel extends VerticalPanel {
 	private Panel createEditList() {
 		Panel panel = new HorizontalPanel();
 		Panel buttonPanel = new VerticalPanel();
-		final Button addButton = UI.makeButton("Add");
-		final Button deleteButton = UI.makeButton("Delete", "Permanently delete the user, removing all their snippets");
-
+		final Button addButton = UI.makeButton("Add", "Add a new email address");
+		final Button deleteButton = UI.makeButton("Delete", "Delete the selected email address");
+		final Button primaryButton = UI.makeButton("Primary", "Make the selected address the primary (reminder emails are sent here)");
+		
 		emailList = new EmailList();
 
 		panel.add(UI.makeLabel("Email addresses:", "dialogLabel"));
@@ -90,6 +91,14 @@ public class UserPanel extends VerticalPanel {
 			@Override
 			public void onClick(ClickEvent event) {
 				emailList.removeSelected();
+				hasChanged = true;
+			}
+		});
+		
+		primaryButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				emailList.makeSelectedPrimary();
 				hasChanged = true;
 			}
 		});

@@ -25,4 +25,6 @@ public interface DataStorage {
 	public List<Snippet> getSnippetsForUser(User user);
 	
 	public List<Snippet> getSnippetsByWeek(Long week);
+	
+	public User getUserForSnippet(Snippet snippet);
 }

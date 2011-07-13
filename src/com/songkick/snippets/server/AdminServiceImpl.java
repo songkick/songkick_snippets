@@ -11,6 +11,7 @@ import com.songkick.snippets.logic.Authenticator;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.logic.ReminderHandler;
 import com.songkick.snippets.logic.ReminderHandler.MailType;
+import com.songkick.snippets.model.ReminderEmail;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
 import com.songkick.snippets.server.data.DataStorage;
@@ -238,5 +239,18 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 				dataStore.delete(snippet);
 			}
 		}
+	}
+
+	@Override
+	public String getDigest() {
+		return ReminderEmail.generateDigest(dataStore);
+	}
+
+	@Override
+	public void sendDigestToUser(UserDAO user) {
+		List<User> users = new ArrayList<User>();
+		
+		users.add(getUser(user));
+		reminderHandler.queueRemindersTo(users, MailType.Digest);
 	}
 }

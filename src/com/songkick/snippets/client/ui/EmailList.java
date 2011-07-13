@@ -3,14 +3,21 @@ package com.songkick.snippets.client.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.user.cellview.client.CellList;
+import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.songkick.common.model.UserDAO;
 
 public class EmailList extends VerticalPanel {
 	private UserDAO user = null;
-	private ListBox list = new ListBox();
+	private TextCell textCell = new TextCell();
+	private CellList<String> cellList = new CellList<String>(textCell);
+	private SingleSelectionModel<String> selectionModel = new SingleSelectionModel<String>();
+	private ListDataProvider<String> dataProvider = new ListDataProvider<String>();
+	private List<String> emailList = new ArrayList<String>();
 
 	public EmailList() {
 		createUI();
@@ -19,26 +26,26 @@ public class EmailList extends VerticalPanel {
 	public void setUser(UserDAO user) {
 		this.user = user;
 		
-		list.clear();
-		for (String email : user.getEmailAddresses()) {
-			addEmail(email);
-		}
+		emailList = new ArrayList<String>();
+		
+		emailList.addAll(user.getEmailAddresses());
+		emailList.addAll(user.getPrimaryEmails());
+		
+		dataProvider.setList(emailList);
 	}
 
 	private void createUI() {
-		ScrollPanel scrollPanel = new ScrollPanel();
-
-		scrollPanel.setSize("100%", "100%");
-		add(scrollPanel);
-
-		scrollPanel.setWidget(list);
-		list.setStylePrimaryName("emailList");
-		list.setWidth("100%");list.setVisibleItemCount(5);
+    cellList.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
+    cellList.setSelectionModel(selectionModel);
+    
+    dataProvider.addDataDisplay(cellList);
+    
+		/*list.setStylePrimaryName("emailList");
+		list.setWidth("100%");
+		list.setVisibleItemCount(5);*/
 
 		if (user != null) {
-			for (String email : user.getEmailAddresses()) {
-				addEmail(email);
-			}
+	    dataProvider.setList(user.getEmailAddresses());
 		}
 	}
 
@@ -47,16 +54,19 @@ public class EmailList extends VerticalPanel {
 	}
 
 	public List<String> getEmails() {
-		List<String> emails = new ArrayList<String>();
-		
-		for (int i=0; i<list.getItemCount(); i++) {
-			emails.add(list.getItemText(i));
-		}
-		
-		return emails;
+		return dataProvider.getList();
 	}
-
-	public void addEmail(String email) {
-		list.addItem(email);
+	
+	public void addEmailToList(String email) {
+		emailList.add(email);
+	}
+	
+	public void makeSelectedPrimary() {
+		/*String email = list.getItemText(list.getSelectedIndex());
+		
+		if (email!=null && user!=null) {
+			user.getEmailAddresses().remove(email);
+			user.getPrimaryEmails().add(email);
+		}*/
 	}
 }

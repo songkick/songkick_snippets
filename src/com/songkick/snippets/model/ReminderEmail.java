@@ -8,9 +8,13 @@ import com.songkick.snippets.presentation.SnippetPresentation;
 import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.server.data.DataStorageHandler;
 
+/**
+ * Generate the appropriate reminder email, then call a MailSender to actually send it
+ * 
+ * @author dancrow
+ */
 public class ReminderEmail {
-	private static MailSender mailSender = new MailSender("snippet@songkick.com", "Snippets");
-	private static DataStorage dataStore = new DataStorageHandler();
+	private static MailSender mailSender = new MailSender("snippet@songkick.com", "Snippets", "text/plain");
 	private static final boolean FAKE_SENDING = false;
 
 	private static String digestCache = null;
@@ -24,7 +28,7 @@ public class ReminderEmail {
 
 		if (type == MailType.Digest) {
 			mailSender.sendEmail(emailAddress, "Weekly snippet digest",
-					generateDigest());
+					generateDigest(new DataStorageHandler()));
 			return;
 		}
 
@@ -47,13 +51,15 @@ public class ReminderEmail {
 		mailSender.sendEmail(emailAddress, "Snippet reminder", text);
 	}
 
-	private static String generateDigest() {
+	public static String generateDigest(DataStorage dataStore) {
 		if (digestCache == null) {
 			SnippetPresentation presentation = new SnippetPresentation();
 			digestCache = presentation.getSnippetsText(
 					DateHandler.getCurrentWeek() - 1, dataStore);
 		}
 
+		Debug.log("Generated digest email: " + digestCache);
+		
 		return digestCache;
 	}
 }

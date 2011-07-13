@@ -50,6 +50,7 @@ public class UserList extends VerticalPanel {
 		this.setStylePrimaryName("UserList");
 
 		Button sendReminderButton = UI.makeButton("Remind");
+		Button sendDigestButton = UI.makeButton("Send digest");
 		Button addUserButton = UI.makeButton("Add");
 		Button deleteUserButton = UI.makeButton("Delete");
 		Button viewSnippetButton = UI.makeButton("View");
@@ -59,12 +60,13 @@ public class UserList extends VerticalPanel {
 
 		controlPanel.add(allUserCheckBox);
 		allUserCheckBox.setValue(true);
-		
+
 		allUserCheckBox.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				getUsers();
-			}});
+			}
+		});
 
 		add(UI.makeLabel("Current users:", "headerLabel"));
 		add(controlPanel);
@@ -72,6 +74,7 @@ public class UserList extends VerticalPanel {
 		topButtonPanel.add(addUserButton);
 		topButtonPanel.add(deleteUserButton);
 		topButtonPanel.add(sendReminderButton);
+		topButtonPanel.add(sendDigestButton);
 		bottomButtonPanel.add(viewSnippetButton);
 		bottomButtonPanel.add(editSnippetsButton);
 		bottomButtonPanel.add(addSnippetButton);
@@ -115,6 +118,12 @@ public class UserList extends VerticalPanel {
 				addSnippet();
 			}
 		});
+		sendDigestButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				sendDigestToUser();
+			}
+		});
 
 		userListBox.setVisibleItemCount(20);
 		userListBox.setSize("100%", "100%");
@@ -147,6 +156,26 @@ public class UserList extends VerticalPanel {
 		}
 		AddSnippetDialog dialog = new AddSnippetDialog(user);
 		dialog.showRelativeTo(addSnippetButton);
+	}
+
+	private void sendDigestToUser() {
+		UserDAO user = getSelectedUser();
+		if (user == null) {
+			return;
+		}
+
+		adminService.sendDigestToUser(user, new AsyncCallback<Void>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onSuccess(Void result) {
+				Window.alert("Email sent");
+			}
+		});
 	}
 
 	private void viewSnippets() {
@@ -319,8 +348,22 @@ public class UserList extends VerticalPanel {
 		System.out.println("populateUserList from " + users);
 		userListBox.clear();
 		for (UserDAO user : users) {
-			userListBox.addItem(user.getName() + " ("
-					+ user.getEmailAddresses().get(0) + ")");
+			userListBox.addItem(getUserString(user));
 		}
+	}
+
+	private String getUserString(UserDAO user) {
+		String name = user.getName() + " (";
+
+		if (user.getPrimaryEmails() != null && user.getPrimaryEmails().size() > 0) {
+			name += user.getPrimaryEmails().get(0);
+		} else if (user.getEmailAddresses() != null
+				&& user.getEmailAddresses().size() > 0) {
+			name += user.getEmailAddresses().get(0);
+		}
+
+		name += ")";
+
+		return name;
 	}
 }

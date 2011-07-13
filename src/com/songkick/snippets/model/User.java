@@ -10,6 +10,7 @@ public class User {
 	private Long id = null;
 	private String emailAddress = null;
 	private List<String> otherEmails = new ArrayList<String>();
+	private List<String> primaryEmails = new ArrayList<String>();
 	private String name = null;
 	private String group = null;
 	private List<Snippet> snippetList = null;
@@ -123,5 +124,13 @@ public class User {
 
 	public void setEndDate(String endDate) {
 		this.endDate = endDate;
+	}
+
+	public void setPrimaryEmails(List<String> primaryEmails) {
+		this.primaryEmails = primaryEmails;
+	}
+
+	public List<String> getPrimaryEmails() {
+		return primaryEmails;
 	}
 }

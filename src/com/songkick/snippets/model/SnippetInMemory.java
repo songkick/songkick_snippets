@@ -1,7 +1,6 @@
 package com.songkick.snippets.model;
 
-import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyService;
+import com.songkick.snippets.server.data.DataStorage;
 
 public class SnippetInMemory {
 	private Snippet snippet = null;
@@ -11,9 +10,12 @@ public class SnippetInMemory {
 		this.snippet = snippet;
 	}
 	
-	public void prep() {
-		Objectify ofy = ObjectifyService.begin();
-		user = ofy.get(snippet.getUser());
+	public void prep(DataStorage dataStore) {
+		user = dataStore.getUserForSnippet(snippet);
+		
+		if (user==null) {
+			System.out.println("SnippetInMemory.prep: no user found for " + snippet);
+		}
 	}
 
 	public User getUserInMemory() {

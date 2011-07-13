@@ -3,6 +3,7 @@ package com.songkick.snippets.server.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.googlecode.objectify.Key;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
@@ -69,10 +70,32 @@ public class DataStorageMock extends DataStorageBase implements DataStorage {
 		return false;
 	}
 
+	private User getUser(Key<User> key) {
+		List<User> users = getCurrentUsers();
+		
+		for (User user: users) {
+			if (user.getId().equals(key.getId())) {
+				return user;
+			}
+		}
+		
+		return null;
+	}
+	
 	@Override
 	public List<User> getUsersWithSnippetFor(Long week) {
-		// Can't be implemented in the mock (yet)
-		return null;
+		List<Snippet> snippets = getSnippets();
+		List<User> users = new ArrayList<User>();
+		
+		for (Snippet snippet: snippets) {
+			if (snippet.getWeekNumber().equals(week)) {
+				users.add(getUser(snippet.getUser()));
+			}
+		}
+		
+		System.out.println("DataStorageMock.getUsersWithSnippetFor(" + week + ") returns " + users);
+		
+		return users;
 	}
 
 	@Override
@@ -89,8 +112,19 @@ public class DataStorageMock extends DataStorageBase implements DataStorage {
 
 	@Override
 	public List<Snippet> getSnippetsByWeek(Long week) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Snippet> snippets = getSnippets();
+		List<Snippet> results = new ArrayList<Snippet>();
+		
+		for (Snippet snippet: snippets) {
+			System.out.println("DataStorageMock.getSnippetsByWeek examining " + snippet + " (week=" + snippet.getWeekNumber() + ")");
+			if (snippet.getWeekNumber().equals(week)) {
+				results.add(snippet);
+			}
+		}
+		
+		System.out.println("DataStorageMock.getSnippetsByWeek(" + week + ") returns " + results);
+		
+		return results;
 	}
 
 	@Override
@@ -102,7 +136,11 @@ public class DataStorageMock extends DataStorageBase implements DataStorage {
 				users.add((User) obj);
 			}
 		}
-
 		return users;
+	}
+
+	@Override
+	public User getUserForSnippet(Snippet snippet) {
+		return getUser(snippet.getUser());
 	}
 }
