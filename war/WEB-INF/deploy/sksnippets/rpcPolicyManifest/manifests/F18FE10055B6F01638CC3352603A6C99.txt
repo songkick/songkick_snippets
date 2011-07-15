@@ -1,0 +1,2 @@
+serviceClass: com.songkick.snippets.client.AdminService
+path: 63007E6A181868C1965012F0C91C549C.gwt.rpc

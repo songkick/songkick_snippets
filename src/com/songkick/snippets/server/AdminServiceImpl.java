@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.songkick.common.model.EmailAddress;
 import com.songkick.common.model.UserDAO;
 import com.songkick.common.util.Debug;
 import com.songkick.snippets.client.AdminService;
@@ -27,6 +28,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 	private Authenticator authenticator = new Authenticator();
 	private ReminderHandler reminderHandler = new ReminderHandler();
 	private DataStorage dataStore = new DataStorageHandler();
+	private UserToDAOTranslator translator = new UserToDAOTranslator();
 
 	@Override
 	public List<UserDAO> getCurrentUserList() throws IllegalArgumentException {
@@ -34,51 +36,34 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 		List<UserDAO> userDAOs = new ArrayList<UserDAO>();
 		for (User next : users) {
-			userDAOs.add(createDAO(next));
+			userDAOs.add(translator.createDAO(next));
 		}
 
 		return userDAOs;
 	}
-	
+
 	@Override
 	public List<UserDAO> getFullUserList() throws IllegalArgumentException {
 		List<User> users = dataStore.getAllUsers();
 
 		List<UserDAO> userDAOs = new ArrayList<UserDAO>();
 		for (User next : users) {
-			userDAOs.add(createDAO(next));
+			userDAOs.add(translator.createDAO(next));
 		}
 
 		return userDAOs;
 	}
 
-	// Create a DAO from a stored User object
-	private UserDAO createDAO(User user) {
-		UserDAO dao = new UserDAO();
-
-		dao.setId(user.getId());
-		dao.setName(user.getName());
-		dao.setAdmin(user.isAdmin());
-		dao.setStartDate(user.getStartDate());
-		dao.setEndDate(user.getEndDate());
-		if (user.getEmailAddress() != null) {
-			dao.addEmail(user.getEmailAddress());
-		}
-		if (user.getOtherEmails() != null) {
-			for (String other : user.getOtherEmails()) {
-				dao.addEmail(other);
-			}
-		}
-		dao.setGroup(user.getGroup());
-		return dao;
-	}
-
 	@Override
 	public void addUser(UserDAO dao) {
+		Debug.log("Adding user " + dao);
+
 		assert (dao.getId() == -1);
 
 		User user = new User();
-		updateUser(user, dao);
+		translator.updateUser(dataStore, user, dao);
+
+		Debug.log("Done - updated user to " + user);
 	}
 
 	@Override
@@ -87,30 +72,16 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 		Debug.log("AdminServiceImpl.updateUser: " + dao);
 
-		for (User user : dataStore.getCurrentUsers()) {
+		for (User user : dataStore.getAllUsers()) {
 			if (user.getId().equals(dao.getId())) {
-				updateUser(user, dao);
+				translator.updateUser(dataStore, user, dao);
 				return;
 			}
 		}
 		Debug.error("Could not update user with ID=" + dao.getId());
 	}
 
-	private void updateUser(User user, UserDAO dao) {
-		user.setName(dao.getName());
-		user.setAdmin(dao.isAdmin());
-		user.setStartDate(dao.getStartDate());
-		user.setEndDate(dao.getEndDate());
-		if (dao.getEmailAddresses().size() > 0) {
-			user.setEmailAddress(dao.getEmailAddresses().get(0));
-			if (dao.getEmailAddresses().size() > 1) {
-				user.setOtherEmails(dao.getEmailAddresses().subList(1,
-						dao.getEmailAddresses().size()));
-			}
-		}
-		user.setGroup(dao.getGroup());
-		dataStore.save(user);
-	}
+	
 
 	@Override
 	public Long getCurrentWeek() {
@@ -125,10 +96,14 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void remindUser(UserDAO dao) {
-		assert (dao.getEmailAddresses().size() > 0);
 
-		reminderHandler.remindUser(dao.getEmailAddresses().get(0),
-				MailType.FirstReminder, dataStore);
+		for (EmailAddress email : dao.getEmailAddresses()) {
+			if (email.isPrimary()) {
+				reminderHandler.remindUser(email.getEmail(), MailType.FirstReminder,
+						dataStore);
+			}
+		}
+		Debug.log("No primary email address for " + dao);
 	}
 
 	private User getUser(UserDAO dao) {
@@ -186,7 +161,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		List<UserDAO> results = new ArrayList<UserDAO>();
 
 		for (User user : toRemind) {
-			results.add(createDAO(user));
+			results.add(translator.createDAO(user));
 		}
 
 		return results;
@@ -249,7 +224,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public void sendDigestToUser(UserDAO user) {
 		List<User> users = new ArrayList<User>();
-		
+
 		users.add(getUser(user));
 		reminderHandler.queueRemindersTo(users, MailType.Digest);
 	}

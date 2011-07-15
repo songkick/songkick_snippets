@@ -57,9 +57,11 @@ public class ReminderHandler {
 		Debug.log("Users to remind: " + users);
 
 		for (User user : users) {
-			addEmailToQueue(user.getEmailAddress(), mailType);
-			if (user.getOtherEmails() != null) {
-				for (String email : user.getOtherEmails()) {
+			if (user.getEmailAddress()!=null) {
+				addEmailToQueue(user.getEmailAddress(), mailType);
+			}
+			if (user.getPrimaryEmails() != null) {
+				for (String email : user.getPrimaryEmails()) {
 					addEmailToQueue(email, mailType);
 				}
 			}

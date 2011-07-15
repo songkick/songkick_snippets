@@ -1,0 +1,3 @@
+# Module sksnippets
+# RPC service class, partial path of RPC policy file
+com.songkick.snippets.client.AdminService, 63007E6A181868C1965012F0C91C549C.gwt.rpc

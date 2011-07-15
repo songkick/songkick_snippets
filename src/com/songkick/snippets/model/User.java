@@ -99,7 +99,7 @@ public class User {
 	}
 
 	public String toString() {
-		return "id=" + id + " email: " + emailAddress;
+		return "id=" + id + " email: " + emailAddress + " PrimaryEmails: " + primaryEmails + " otherEmails: " + otherEmails;
 	}
 
 	public boolean isAdmin() {

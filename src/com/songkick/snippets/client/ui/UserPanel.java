@@ -1,5 +1,6 @@
 package com.songkick.snippets.client.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -14,6 +15,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.songkick.common.client.ui.util.DateBox;
 import com.songkick.common.client.ui.util.UI;
+import com.songkick.common.model.EmailAddress;
 import com.songkick.common.model.UserDAO;
 
 /**
@@ -66,46 +68,17 @@ public class UserPanel extends VerticalPanel {
 
 	private Panel createEditList() {
 		Panel panel = new HorizontalPanel();
-		Panel buttonPanel = new VerticalPanel();
-		final Button addButton = UI.makeButton("Add", "Add a new email address");
-		final Button deleteButton = UI.makeButton("Delete", "Delete the selected email address");
-		final Button primaryButton = UI.makeButton("Primary", "Make the selected address the primary (reminder emails are sent here)");
 		
-		emailList = new EmailList();
+		emailList = new EmailList(this);
 
 		panel.add(UI.makeLabel("Email addresses:", "dialogLabel"));
 		panel.add(emailList);
-		panel.add(buttonPanel);
 
-		buttonPanel.add(addButton);
-		buttonPanel.add(deleteButton);
-
-		addButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				new AddEmailDialog(emailList, addButton);
-				hasChanged = true;
-			}
-		});
-		deleteButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				emailList.removeSelected();
-				hasChanged = true;
-			}
-		});
-		
-		primaryButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				emailList.makeSelectedPrimary();
-				hasChanged = true;
-			}
-		});
-
-		emailList.setHeight("3em");
-		emailList.setWidth("20em");
 		return panel;
+	}
+	
+	public void touch() {
+		hasChanged = true;
 	}
 
 	public boolean hasChanged() {
@@ -162,7 +135,10 @@ public class UserPanel extends VerticalPanel {
 		existing.setAdmin(adminCheckBox.getValue());
 		existing.setStartDate(startDateBox.getDateString());
 		existing.setEndDate(endDateBox.getDateString());
-		List<String> emails = emailList.getEmails();
+		List<EmailAddress> emails = new ArrayList<EmailAddress>();
+		for (EmailAddress email: emailList.getEmails()) {
+			emails.add(email);
+		}
 		existing.setEmailAddresses(emails);
 
 		if (newUser) {

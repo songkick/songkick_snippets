@@ -45,6 +45,11 @@ body {
 	padding-left: 12px;
 }
 
+.EmailScrollPanel {
+	border-left: 1px solid black;
+	border-top: 1px solid black;
+}
+
 .Title {
 	padding-top: 10px;
 	padding-bottom: 10px;

@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.songkick.common.client.ui.util.UI;
+import com.songkick.common.model.EmailAddress;
 import com.songkick.common.model.UserDAO;
 import com.songkick.snippets.client.AdminService;
 import com.songkick.snippets.client.AdminServiceAsync;
@@ -297,11 +298,14 @@ public class UserList extends VerticalPanel {
 	}
 
 	// Callback from AddUserDialog
-	public void addUser(UserDAO user) {
-		adminService.addUser(user, new AsyncCallback<Void>() {
+	public void addUser(UserDAO dao) {
+		System.out.println("UserList.addUser: " + dao);
+
+		adminService.addUser(dao, new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(Throwable caught) {
 				inform("Connection failure");
+				Window.alert("Oops: " + caught);
 			}
 
 			@Override
@@ -355,11 +359,15 @@ public class UserList extends VerticalPanel {
 	private String getUserString(UserDAO user) {
 		String name = user.getName() + " (";
 
-		if (user.getPrimaryEmails() != null && user.getPrimaryEmails().size() > 0) {
-			name += user.getPrimaryEmails().get(0);
-		} else if (user.getEmailAddresses() != null
-				&& user.getEmailAddresses().size() > 0) {
-			name += user.getEmailAddresses().get(0);
+		boolean showComma = false;
+		for (EmailAddress address : user.getEmailAddresses()) {
+			if (address.isPrimary()) {
+				if (showComma) {
+					name += ", ";
+				}
+				name += address.getEmail();
+				showComma = true;
+			}
 		}
 
 		name += ")";
