@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.googlecode.objectify.Key;
+import com.songkick.common.util.Debug;
+import com.songkick.snippets.client.model.HolidayDate;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
+import com.songkick.snippets.model.reviews.PerformanceReview;
+import com.songkick.snippets.model.reviews.ReviewData;
 
-public class DataStorageMock extends DataStorageBase implements DataStorage {
+public class DataStorageMock extends DataStorageBase {
 	private Long idCounter = 1L;
 	private List<Object> store = new ArrayList<Object>();
 
@@ -62,7 +66,10 @@ public class DataStorageMock extends DataStorageBase implements DataStorage {
 	public boolean hasUser(String email) {
 		List<User> users = getCurrentUsers();
 
+		Debug.log("Trying to find user with email=\"" + email + "\"");
+		
 		for (User user : users) {
+			Debug.log("\tGot user: " + user);
 			if (user.matchesEmail(email)) {
 				return true;
 			}
@@ -138,9 +145,41 @@ public class DataStorageMock extends DataStorageBase implements DataStorage {
 		}
 		return users;
 	}
+	
+	@Override
+	public List<HolidayDate> getAllHolidayDates() {
+		List<HolidayDate> dates = new ArrayList<HolidayDate>();
+		
+		for (Object obj: store) {
+			if (obj instanceof HolidayDate) {
+				dates.add((HolidayDate) obj);
+			}
+		}
+		
+		return dates;
+	}
 
 	@Override
 	public User getUserForSnippet(Snippet snippet) {
 		return getUser(snippet.getUser());
+	}
+
+	@Override
+	public List<PerformanceReview> getAllReviews() {
+		List<PerformanceReview> reviews = new ArrayList<PerformanceReview>();
+		
+		for (Object obj: store) {
+			if (obj instanceof PerformanceReview) {
+				reviews.add((PerformanceReview) obj);
+			}
+		}
+		
+		return reviews;
+	}
+
+	@Override
+	public ReviewData getReviewDataById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

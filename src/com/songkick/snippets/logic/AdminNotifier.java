@@ -13,27 +13,30 @@ import com.songkick.snippets.server.data.DataStorageHandler;
  * @author dancrow
  */
 public class AdminNotifier {
-	private MailSender mailSender = new MailSender("snippet@songkick.com", "Snippets");
-	
+	private MailSender mailSender = new MailSender("snippet@songkick.com",
+			"Snippets");
+
 	private List<User> getAdmins() {
 		DataStorageHandler dataStore = new DataStorageHandler();
-		
+
 		List<User> users = dataStore.getCurrentUsers();
 		List<User> admins = new ArrayList<User>();
-		
-		for (User user: users) {
+
+		for (User user : users) {
 			if (user.isAdmin()) {
 				admins.add(user);
 			}
 		}
 		return admins;
 	}
-	
+
 	public void notify(String subject, String message) {
 		List<User> admins = getAdmins();
-		
-		for (User admin: admins) {
-			mailSender.sendEmail(admin.getEmailAddress(), "Snippet Alert: " + subject, message);
+
+		for (User admin : admins) {
+			for (String email : admin.getOutgoingEmails()) {
+				mailSender.sendEmail(email, "Snippet Alert: " + subject, message);
+			}
 		}
 	}
 }

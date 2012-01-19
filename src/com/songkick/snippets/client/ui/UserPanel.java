@@ -17,6 +17,7 @@ import com.songkick.common.client.ui.util.DateBox;
 import com.songkick.common.client.ui.util.UI;
 import com.songkick.common.model.EmailAddress;
 import com.songkick.common.model.UserDAO;
+import com.songkick.snippets.client.Application;
 
 /**
  * Panel that displays a new or existing User record
@@ -26,10 +27,12 @@ import com.songkick.common.model.UserDAO;
 public class UserPanel extends VerticalPanel {
 	private UserList parent = null;
 	private TextBox nameTextBox = new TextBox();
+	private TextBox jobTitleTextBox = new TextBox();
 	private CheckBox adminCheckBox = new CheckBox("Administrator");
 	private DateBox startDateBox = null;
 	private DateBox endDateBox = null;
 	private UserDAO existing = null;
+	private SelectUserBox managerTextBox = new SelectUserBox("Manger");
 	private EmailList emailList = null;
 	private boolean hasChanged = false;
 
@@ -43,20 +46,34 @@ public class UserPanel extends VerticalPanel {
 
 		if (existing != null) {
 			nameTextBox.setText(existing.getName());
+			jobTitleTextBox.setText(existing.getJobTitle());
 			adminCheckBox.setValue(existing.isAdmin());
 			startDateBox.setDateString(existing.getStartDate());
 			endDateBox.setDateString(existing.getEndDate());
+			managerTextBox.setUsers(getUserNames(existing.getManagers()));
 
 			emailList.setUser(existing);
 		} else {
 			nameTextBox.setText("");
+			jobTitleTextBox.setText("");
 			adminCheckBox.setValue(false);
 			startDateBox.setDateString("");
 			endDateBox.setDateString("");
+			managerTextBox.clear();
 			
 			emailList.clear();
 		}
 		hasChanged = false;
+	}
+	
+	private List<String> getUserNames(List<Long> ids) {
+		List<String> names = new ArrayList<String>();
+		
+		for (Long id: ids) {
+			names.add(Application.getUserById(id).getName());
+		}
+		
+		return names;
 	}
 
 	private Panel createLabel(String label, TextBox textBox) {
@@ -91,6 +108,7 @@ public class UserPanel extends VerticalPanel {
 
 		add(UI.makeLabel("User Record:", "headerLabel"));
 		add(createLabel("Name:", nameTextBox));
+		add(createLabel("Title:", jobTitleTextBox));
 		add(adminCheckBox);
 		adminCheckBox.setStylePrimaryName("indentedCheckbox");
 		add(createEditList());
@@ -99,6 +117,8 @@ public class UserPanel extends VerticalPanel {
 		endDateBox = new DateBox("Ended");
 		add(startDateBox);
 		add(endDateBox);
+		
+		add(managerTextBox);
 
 		setWidth("400px");
 		setStylePrimaryName("UserPanel");
@@ -124,6 +144,18 @@ public class UserPanel extends VerticalPanel {
 		nameTextBox.setFocus(true);
 	}
 
+	private List<Long> getIdList(List<String> users) {
+		List<Long> ids = new ArrayList<Long>();
+		
+		for (UserDAO dao: Application.getUsers()) {
+			if (users.contains(dao.getName())) {
+				ids.add(dao.getId());
+			}
+		}
+		
+		return ids;
+	}
+	
 	private void addOrEditUser() {
 		boolean newUser = false;
 		if (existing == null) {
@@ -132,9 +164,11 @@ public class UserPanel extends VerticalPanel {
 		}
 
 		existing.setName(nameTextBox.getText());
+		existing.setJobTitle(jobTitleTextBox.getText());
 		existing.setAdmin(adminCheckBox.getValue());
 		existing.setStartDate(startDateBox.getDateString());
 		existing.setEndDate(endDateBox.getDateString());
+		existing.setManagers(getIdList(managerTextBox.getUsers()));
 		List<EmailAddress> emails = new ArrayList<EmailAddress>();
 		for (EmailAddress email: emailList.getEmails()) {
 			emails.add(email);

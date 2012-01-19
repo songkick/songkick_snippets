@@ -15,21 +15,23 @@ import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.server.data.DataStorageMock;
 
 public class UserToDAOTest {
+	private DataStorage dataStore = new DataStorageMock();
+
 	@Test
 	/**
 	 * Test whether the conversion from a User object to a UserDAO preserves email addresses correctly
 	 */
 	public void testUserToUserDAO() {
-		UserToDAOTranslator impl = new UserToDAOTranslator();
+		DTOTranslator impl = new DTOTranslator();
 
 		User user = createUser("dancrow@songkick.com", null, null);
-		checkDAOEmail(impl.createDAO(user), "dancrow@songkick.com", true);
+		checkDAOEmail(impl.createDAO(dataStore, user), "dancrow@songkick.com", true);
 
 		user = createUser(null, "dancrow@songkick.com", null);
-		checkDAOEmail(impl.createDAO(user), "dancrow@songkick.com", true);
+		checkDAOEmail(impl.createDAO(dataStore, user), "dancrow@songkick.com", true);
 
 		user = createUser(null, null, "dancrow@songkick.com");
-		checkDAOEmail(impl.createDAO(user), "dancrow@songkick.com", false);
+		checkDAOEmail(impl.createDAO(dataStore, user), "dancrow@songkick.com", false);
 	}
 
 	@Test
@@ -61,14 +63,13 @@ public class UserToDAOTest {
 		assertTrue(checkUserEmails(user, null,
 				"dancrow@songkick.com,crow1@mac.com", "crow2@mac.com"));
 	}
-	
+
 	@Test
 	/**
 	 * Test whether a UserDAO correctly preserves email fields when translating to a User object 
 	 */
 	public void testDAOToUser() {
-		UserToDAOTranslator impl = new UserToDAOTranslator();
-		DataStorage dataStore = new DataStorageMock();
+		DTOTranslator impl = new DTOTranslator();
 		UserDAO dao = new UserDAO();
 
 		List<EmailAddress> list = new ArrayList<EmailAddress>();
@@ -86,28 +87,12 @@ public class UserToDAOTest {
 	}
 
 	// ============================================================================
-	
+
 	private EmailAddress createEmailAddress(String email, boolean isPrimary) {
 		EmailAddress address = new EmailAddress();
 		address.setEmail(email);
 		address.setPrimary(isPrimary);
 		return address;
-	}
-
-	private boolean checkEmail(User user, String email) {
-
-		if (user.getEmailAddress() == null && email != null) {
-			System.out.println("user.getEmailAddress is null, email is not");
-			return false;
-		}
-
-		if (email == null && user.getEmailAddress() != null) {
-			System.out.println("email is null but user.getEmailAddres is "
-					+ user.getEmailAddress());
-			return false;
-		}
-
-		return true;
 	}
 
 	private List<String> stringToArray(String string) {
@@ -165,12 +150,6 @@ public class UserToDAOTest {
 		System.out.println("checkUserEmails. user is " + user + " email is "
 				+ email + " primary is " + primary + " secondary is " + secondary);
 
-		boolean emailGood = checkEmail(user, email);
-		if (!emailGood) {
-			System.out.println("email not good");
-			return false;
-		}
-
 		boolean primaryGood = checkArray(user.getPrimaryEmails(), primary);
 		if (!primaryGood) {
 			System.out.println("primary not good");
@@ -186,11 +165,20 @@ public class UserToDAOTest {
 		return true;
 	}
 
+	/**
+	 * Create a user with the specified email, primary and secondary emails.
+	 * Convert it to a UserDAO, then back to a User object. Return the final User
+	 * object
+	 * 
+	 * @param email
+	 * @param primary
+	 * @param secondary
+	 * @return
+	 */
 	private User roundTrip(String email, String primary, String secondary) {
-		UserToDAOTranslator impl = new UserToDAOTranslator();
-		DataStorage dataStore = new DataStorageMock();
+		DTOTranslator impl = new DTOTranslator();
 		User user = createUser(email, primary, secondary);
-		UserDAO dao = impl.createDAO(user);
+		UserDAO dao = impl.createDAO(dataStore, user);
 		User user1 = new User();
 		impl.updateUser(dataStore, user1, dao);
 

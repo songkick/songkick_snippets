@@ -4,20 +4,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.songkick.common.shared.SKDateFormat;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.model.User;
 
-public class DataStorageBase {
-	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat
-			.forPattern(SKDateFormat.FORMAT);
+public abstract class DataStorageBase implements DataStorage {
 	private static final DateTimeFormatter OLD_FORMAT = DateTimeFormat
 			.forPattern("MM/dd/yyyy");
-
-	private DateTime createDate(int month, int day, int year) {
-		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
-		return formatter.parseDateTime(year + "/" + month + "/" + day);
-	}
 
 	/**
 	 * Parse a date from a string. Because the backend and the UI disagreed for a
@@ -28,19 +20,19 @@ public class DataStorageBase {
 	 * @param defaultDate
 	 * @return
 	 */
-	private DateTime parseDate(String dateString, DateTime defaultDate) {
+	private DateTime parseDate(String dateString, String defaultDateString) {
 		if (dateString == null || dateString.length() < 1) {
-			return defaultDate;
+			return DateHandler.getDateFromString(defaultDateString);
 		}
 		try {
-			return DATE_FORMAT.parseDateTime(dateString);
+			return DateHandler.getDateFromString(dateString);
 		} catch (Exception e) {
 			try {
 				return OLD_FORMAT.parseDateTime(dateString);
 			} catch (Exception e1) {
 			}
 		}
-		return defaultDate;
+		return DateHandler.getDateFromString(defaultDateString);
 	}
 
 	/**
@@ -52,14 +44,12 @@ public class DataStorageBase {
 	 * @return
 	 */
 	protected boolean isCurrentUser(User user, Long week) {
-		DateTime startDate = parseDate(user.getStartDate(), createDate(1, 1, 1900));
-		DateTime endDate = parseDate(user.getEndDate(), createDate(1, 1, 9999));
-		DateTime now = DateHandler.weekToDateTime(week);
-
-		if (now.isAfter(startDate) && now.isBefore(endDate)) {
+		Long startWeek = DateHandler.getWeekNumber(parseDate(user.getStartDate(), "Jan 11, 2011"));
+		Long endWeek = DateHandler.getWeekNumber(parseDate(user.getEndDate(), "Dec 31, 9999"));
+		
+		if (startWeek.compareTo(week)<=0 && endWeek.compareTo(week)>=0) {
 			return true;
 		}
-
 		return false;
 	}
 }

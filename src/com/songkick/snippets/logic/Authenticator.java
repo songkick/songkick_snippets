@@ -9,6 +9,7 @@ import com.songkick.common.util.Debug;
 import com.songkick.snippets.server.data.DataStorage;
 
 public class Authenticator {
+	private UserService userService = UserServiceFactory.getUserService();
 
 	public boolean isValidEmail(String fromAddress, DataStorage dataStore) {
 		// Whitelist all @songkick.com email addresses
@@ -17,9 +18,9 @@ public class Authenticator {
 		}
 
 		List<com.songkick.snippets.model.User> users = dataStore.getCurrentUsers();
-		
+
 		// Whitelist all existing users
-		for (com.songkick.snippets.model.User user: users) {
+		for (com.songkick.snippets.model.User user : users) {
 			if (user.matchesEmail(fromAddress)) {
 				return true;
 			}
@@ -28,10 +29,13 @@ public class Authenticator {
 		return false;
 	}
 
+	public User getUser() {
+		return userService.getCurrentUser();
+	}
+
 	public boolean isSongkickUser(DataStorage dataStore) {
 		// Check this is a songkick.com user
-		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
+		User user = getUser();
 
 		if (user == null) {
 			Debug.error("Could not get current user during authentication");
@@ -42,11 +46,11 @@ public class Authenticator {
 	}
 
 	public String isSongkickAdmin(String redirectURL, DataStorage dataStore) {
-		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
+		User user = getUser();
 
 		if (user == null) {
-			Debug.error("Authenticator.isSongkickAdmin: no user found, could not authenticate");
+			Debug
+					.error("Authenticator.isSongkickAdmin: no user found, could not authenticate");
 			return userService.createLoginURL(redirectURL);
 		}
 
@@ -56,7 +60,7 @@ public class Authenticator {
 		}
 
 		List<com.songkick.snippets.model.User> users = dataStore.getCurrentUsers();
-		for (com.songkick.snippets.model.User modelUser: users) {
+		for (com.songkick.snippets.model.User modelUser : users) {
 			if (modelUser.matchesEmail(user.getEmail()) && modelUser.isAdmin()) {
 				return null;
 			}

@@ -44,7 +44,7 @@ public class ReminderHandler {
 		}
 
 		email = email.substring(addressStart + 1, email.length());
-		
+
 		int addressEnd = email.indexOf('>');
 		if (addressEnd == -1) {
 			return email;
@@ -57,13 +57,8 @@ public class ReminderHandler {
 		Debug.log("Users to remind: " + users);
 
 		for (User user : users) {
-			if (user.getEmailAddress()!=null) {
-				addEmailToQueue(user.getEmailAddress(), mailType);
-			}
-			if (user.getPrimaryEmails() != null) {
-				for (String email : user.getPrimaryEmails()) {
-					addEmailToQueue(email, mailType);
-				}
+			for (String email: user.getOutgoingEmails()) {
+				addEmailToQueue(email, mailType);
 			}
 		}
 	}
@@ -100,7 +95,7 @@ public class ReminderHandler {
 
 		queueRemindersTo(toRemind, type);
 	}
-	
+
 	/**
 	 * Send a digest of last week's snippets to all users
 	 * 
@@ -108,7 +103,7 @@ public class ReminderHandler {
 	 */
 	public void sendDigest(DataStorage dataStore) {
 		List<User> users = dataStore.getCurrentUsers();
-		
+
 		queueRemindersTo(users, MailType.Digest);
 	}
 
@@ -119,16 +114,21 @@ public class ReminderHandler {
 	 * 
 	 * @param emailAddress
 	 */
-	public void remindUser(String emailAddress, MailType type, DataStorage dataStore) {
+	public void remindUser(String emailAddress, MailType type,
+			DataStorage dataStore) {
 		Debug.log("remindUser. emailAddress: " + emailAddress);
-		
+
 		List<User> users = dataStore.getCurrentUsers();
 		List<User> toRemind = new ArrayList<User>();
 		for (User user : users) {
-			if (user.getEmailAddress().equals(emailAddress)) {
-				toRemind.add(user);
+			for (String email : user.getOutgoingEmails()) {
+				if (email.equals(emailAddress)) {
+					toRemind.add(user);
+				}
 			}
 		}
+
+		Debug.log("User to remind: " + toRemind);
 
 		queueRemindersTo(toRemind, type);
 	}

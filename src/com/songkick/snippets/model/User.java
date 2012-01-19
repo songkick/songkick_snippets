@@ -17,6 +17,8 @@ public class User {
 	private boolean isAdmin = false;
 	private String startDate = null;
 	private String endDate = null;
+	private List<Long> managers = new ArrayList<Long>();
+	private String jobTitle = null;
 
 	public User() {
 		// Needed for datastore
@@ -40,30 +42,50 @@ public class User {
 	public Long getId() {
 		return id;
 	}
-	
+
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getEmailAddress() {
-		return emailAddress;
+	public List<String> getOutgoingEmails() {
+		List<String> result = new ArrayList<String>();
+
+		if (emailAddress != null) {
+			result.add(emailAddress);
+		}
+
+		if (primaryEmails != null) {
+			result.addAll(primaryEmails);
+		}
+
+		return result;
 	}
 
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
 	}
-	
+
 	public boolean matchesEmail(String email) {
-		if (email.contains(emailAddress)) {
+		if (emailAddress != null && email.contains(emailAddress)) {
 			return true;
 		}
-		
-		for (String other: otherEmails) {
-			if (email.contains(other)) {
-				return true;
+
+		if (otherEmails != null) {
+			for (String other : otherEmails) {
+				if (email.contains(other)) {
+					return true;
+				}
 			}
 		}
-		
+
+		if (primaryEmails != null) {
+			for (String other : primaryEmails) {
+				if (email.contains(other)) {
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 
@@ -87,7 +109,19 @@ public class User {
 		if (name != null) {
 			return name;
 		}
-		return emailAddress;
+		if (emailAddress != null) {
+			return emailAddress;
+		}
+
+		if (primaryEmails.size() > 0) {
+			return primaryEmails.get(0);
+		}
+
+		if (otherEmails.size() > 0) {
+			return otherEmails.get(0);
+		}
+
+		return "unknown";
 	}
 
 	public void setOtherEmails(List<String> otherEmails) {
@@ -99,7 +133,8 @@ public class User {
 	}
 
 	public String toString() {
-		return "id=" + id + " email: " + emailAddress + " PrimaryEmails: " + primaryEmails + " otherEmails: " + otherEmails;
+		return "id=" + id + " startDate: " + startDate + " email: " + emailAddress
+				+ " PrimaryEmails: " + primaryEmails + " otherEmails: " + otherEmails;
 	}
 
 	public boolean isAdmin() {
@@ -130,7 +165,40 @@ public class User {
 		this.primaryEmails = primaryEmails;
 	}
 
+	public void addPrimaryEmail(String newPrimary) {
+		primaryEmails.add(newPrimary);
+	}
+
 	public List<String> getPrimaryEmails() {
 		return primaryEmails;
+	}
+
+	public List<Long> getManagers() {
+		return managers;
+	}
+
+	public void setManagers(List<Long> managers) {
+		this.managers = managers;
+	}
+
+	public boolean doesReportTo(User user) {
+		for (Long id: managers) {
+			if (user.getId().equals(id)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void addManager(User user) {
+		managers.add(user.getId());
+	}
+
+	public String getJobTitle() {
+		return jobTitle;
+	}
+
+	public void setJobTitle(String jobTitle) {
+		this.jobTitle = jobTitle;
 	}
 }

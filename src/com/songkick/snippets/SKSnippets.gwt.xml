@@ -14,7 +14,7 @@
   <inherits name='com.songkick.common.SKCommon'/>
 
   <!-- Specify the app entry point class.                         -->
-  <entry-point class='com.songkick.snippets.client.AdminUI'/>
+  <entry-point class='com.songkick.snippets.client.AdminEntryPoint'/>
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>

@@ -21,6 +21,9 @@ public class UserModelTests {
 	
 	private void testExpectation(DataStorage dataStore, Long week, int expected) {
 		List<User> users = dataStore.getUsersForWeek(week);
+		
+		System.out.println("User for week " + week + " are " + users);
+		
 		assertTrue(users.size() == expected);
 	}
 

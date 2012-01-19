@@ -2,7 +2,7 @@
 <cronentries>
   <cron>
     <url>/reminders?which=one</url>
-    <description>Generate the email reminders</description>
+    <description>Generate the first email reminders</description>
     <schedule>every monday 10:00</schedule>
     <timezone>Europe/London</timezone>
   </cron>
@@ -18,6 +18,27 @@
     <url>/reminders?which=digest</url>
     <description>Email out the digest summary</description>
     <schedule>every tuesday 9:30</schedule>
+    <timezone>Europe/London</timezone>
+  </cron>
+  
+  <cron>
+    <url>/reminders?which=one</url>
+    <description>Generate the first email reminders</description>
+    <schedule>every tuesday 10:00</schedule>
+    <timezone>Europe/London</timezone>
+  </cron>
+  
+  <cron>
+    <url>/reminders?which=two</url>
+    <description>Generate the second email reminders</description>
+    <schedule>every tuesday 16:30</schedule>
+    <timezone>Europe/London</timezone>
+  </cron>
+  
+  <cron>
+    <url>/reminders?which=digest</url>
+    <description>Email out the digest summary</description>
+    <schedule>every wednesday 9:30</schedule>
     <timezone>Europe/London</timezone>
   </cron>
 </cronentries>

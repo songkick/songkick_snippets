@@ -129,7 +129,7 @@ public class AccessServlet extends HttpServlet {
 			if (format == Format.json) {
 				json.put("user", user.getBestName());
 				JSONArray emailArray = new JSONArray();
-				emailArray.add(user.getEmailAddress());
+				emailArray.add(user.getOutgoingEmails().get(0));
 				for (String email : user.getOtherEmails()) {
 					emailArray.add(email);
 				}

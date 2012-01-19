@@ -4,15 +4,19 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.songkick.common.model.UserDAO;
+import com.songkick.snippets.client.model.HolidayDate;
 
 /**
  * The async counterpart of <code>GreetingService</code>.
  */
 public interface AdminServiceAsync {
+	
 	void getCurrentUserList(AsyncCallback<List<UserDAO>> callback)
 			throws IllegalArgumentException;
 	void getFullUserList(AsyncCallback<List<UserDAO>> callback)
 	throws IllegalArgumentException;
+	
+	public void getCurrentUser(AsyncCallback<UserDAO> callback);
 	
 	void addUser(UserDAO dao, AsyncCallback<Void> callback);
 	void updateUser(UserDAO dao, AsyncCallback<Void> callback);
@@ -35,4 +39,13 @@ public interface AdminServiceAsync {
 	
 	public void getDigest(AsyncCallback<String> callback);
 	public void sendDigestToUser(UserDAO user, AsyncCallback<Void> callback);
+	
+	public void upgradeDatabase(AsyncCallback<Void> callback);
+	
+	public void getDirectReports(AsyncCallback<List<UserDAO>> callback);
+	
+	public void getHolidayDates(AsyncCallback<List<HolidayDate>> callback);
+	public void setHolidayDates(List<HolidayDate> dates, AsyncCallback<Void> callback);
+	
+	public void startReview(UserDAO user, String dueDate, String period, AsyncCallback<Boolean> callback);
 }

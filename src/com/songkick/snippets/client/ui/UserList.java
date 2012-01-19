@@ -22,6 +22,8 @@ import com.songkick.common.model.EmailAddress;
 import com.songkick.common.model.UserDAO;
 import com.songkick.snippets.client.AdminService;
 import com.songkick.snippets.client.AdminServiceAsync;
+import com.songkick.snippets.client.Application;
+import com.songkick.snippets.client.ReviewEntryPoint;
 
 /**
  * Handle user list and associated controls
@@ -37,7 +39,6 @@ public class UserList extends VerticalPanel {
 	private Button editSnippetsButton = UI.makeButton("Edit");
 	private CheckBox allUserCheckBox = new CheckBox("Show all users");
 	private UserPanel userPanel = null;
-	private List<UserDAO> users = null;
 
 	public UserList(UserPanel userPanel) {
 		this.userPanel = userPanel;
@@ -148,6 +149,9 @@ public class UserList extends VerticalPanel {
 		};
 
 		t.schedule(5000);
+		
+		// TMP
+		Window.alert(message);
 	}
 
 	private void addSnippet() {
@@ -237,7 +241,7 @@ public class UserList extends VerticalPanel {
 			Window.alert("Select a user");
 			return null;
 		}
-		return users.get(index);
+		return Application.getUsers().get(index);
 	}
 
 	private void deleteUser() {
@@ -272,26 +276,28 @@ public class UserList extends VerticalPanel {
 			adminService.getFullUserList(new AsyncCallback<List<UserDAO>>() {
 				@Override
 				public void onFailure(Throwable caught) {
-					inform("connection failure");
+					inform("connection failure " + caught);
 				}
 
 				@Override
 				public void onSuccess(List<UserDAO> result) {
 					populateUserList(result);
-					users = result;
+					Application.setUsers(result);
+					ReviewEntryPoint.teamMembers = result;
 				}
 			});
 		} else {
 			adminService.getCurrentUserList(new AsyncCallback<List<UserDAO>>() {
 				@Override
 				public void onFailure(Throwable caught) {
-					inform("connection failure");
+					inform("connection failure " + caught);
 				}
 
 				@Override
 				public void onSuccess(List<UserDAO> result) {
 					populateUserList(result);
-					users = result;
+					Application.setUsers(result);
+					ReviewEntryPoint.teamMembers = result;
 				}
 			});
 		}
@@ -304,7 +310,7 @@ public class UserList extends VerticalPanel {
 		adminService.addUser(dao, new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(Throwable caught) {
-				inform("Connection failure");
+				inform("Connection failure " + caught);
 				Window.alert("Oops: " + caught);
 			}
 
@@ -321,7 +327,7 @@ public class UserList extends VerticalPanel {
 		adminService.updateUser(user, new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(Throwable caught) {
-				inform("Connection failure");
+				inform("Connection failure " + caught);
 			}
 
 			@Override

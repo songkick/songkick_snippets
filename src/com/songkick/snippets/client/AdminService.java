@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.songkick.common.model.UserDAO;
+import com.songkick.snippets.client.model.HolidayDate;
 
 /**
  * The client side stub for the RPC service.
@@ -13,6 +14,8 @@ import com.songkick.common.model.UserDAO;
 public interface AdminService extends RemoteService {
 	List<UserDAO> getCurrentUserList() throws IllegalArgumentException;
 	List<UserDAO> getFullUserList() throws IllegalArgumentException;
+	
+	public UserDAO getCurrentUser();
 	
 	void addUser(UserDAO dao);
 	void updateUser(UserDAO dao);
@@ -38,4 +41,15 @@ public interface AdminService extends RemoteService {
 	
 	public String getDigest();
 	public void sendDigestToUser(UserDAO user);
+	
+	public void upgradeDatabase();
+	
+	public List<UserDAO> getDirectReports();
+	
+	// Holidays
+	public List<HolidayDate> getHolidayDates();
+	public void setHolidayDates(List<HolidayDate> dates);
+	
+	// Reviews
+	public boolean startReview(UserDAO user, String dueDate, String period);
 }

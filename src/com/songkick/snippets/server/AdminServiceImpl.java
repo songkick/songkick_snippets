@@ -3,11 +3,14 @@ package com.songkick.snippets.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.songkick.common.model.EmailAddress;
 import com.songkick.common.model.UserDAO;
 import com.songkick.common.util.Debug;
 import com.songkick.snippets.client.AdminService;
+import com.songkick.snippets.client.model.HolidayDate;
 import com.songkick.snippets.logic.Authenticator;
 import com.songkick.snippets.logic.DateHandler;
 import com.songkick.snippets.logic.ReminderHandler;
@@ -28,7 +31,8 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 	private Authenticator authenticator = new Authenticator();
 	private ReminderHandler reminderHandler = new ReminderHandler();
 	private DataStorage dataStore = new DataStorageHandler();
-	private UserToDAOTranslator translator = new UserToDAOTranslator();
+	private DTOTranslator translator = new DTOTranslator();
+	private ReviewsService reviewsService = new ReviewsService();
 
 	@Override
 	public List<UserDAO> getCurrentUserList() throws IllegalArgumentException {
@@ -36,7 +40,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 		List<UserDAO> userDAOs = new ArrayList<UserDAO>();
 		for (User next : users) {
-			userDAOs.add(translator.createDAO(next));
+			userDAOs.add(translator.createDAO(dataStore, next));
 		}
 
 		return userDAOs;
@@ -48,7 +52,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 		List<UserDAO> userDAOs = new ArrayList<UserDAO>();
 		for (User next : users) {
-			userDAOs.add(translator.createDAO(next));
+			userDAOs.add(translator.createDAO(dataStore, next));
 		}
 
 		return userDAOs;
@@ -81,8 +85,6 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		Debug.error("Could not update user with ID=" + dao.getId());
 	}
 
-	
-
 	@Override
 	public Long getCurrentWeek() {
 		return DateHandler.getCurrentWeek();
@@ -96,14 +98,21 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void remindUser(UserDAO dao) {
-
+		Debug.log("Reminding user " + dao.getName());
+		
+		boolean hasPrimary = false;
 		for (EmailAddress email : dao.getEmailAddresses()) {
 			if (email.isPrimary()) {
+				Debug.log("Sending reminder to " + email.getEmail());
 				reminderHandler.remindUser(email.getEmail(), MailType.FirstReminder,
 						dataStore);
+				hasPrimary = true;
 			}
 		}
-		Debug.log("No primary email address for " + dao);
+		
+		if (!hasPrimary) {
+			Debug.log("No primary email address for " + dao);
+		}
 	}
 
 	private User getUser(UserDAO dao) {
@@ -161,7 +170,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		List<UserDAO> results = new ArrayList<UserDAO>();
 
 		for (User user : toRemind) {
-			results.add(translator.createDAO(user));
+			results.add(translator.createDAO(dataStore, user));
 		}
 
 		return results;
@@ -227,5 +236,79 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 		users.add(getUser(user));
 		reminderHandler.queueRemindersTo(users, MailType.Digest);
+	}
+ 
+	@Override
+	public void upgradeDatabase() {
+		List<User> users = dataStore.getAllUsers();
+		
+		for (User user: users) {
+			UserDAO dao = translator.createDAO(dataStore, user);
+			translator.updateUser(dataStore, user, dao);
+		}
+	}
+
+	@Override
+	public List<HolidayDate> getHolidayDates() {
+		return dataStore.getAllHolidayDates();
+	}
+
+	@Override
+	public void setHolidayDates(List<HolidayDate> dates) {
+		for (HolidayDate date: dates) {
+			dataStore.save(date);
+		}
+	}
+
+	@Override
+	public boolean startReview(UserDAO dao, String date, String period) {
+
+		for (User user : dataStore.getAllUsers()) {
+			if (user.getId().equals(dao.getId())) {
+				translator.updateUser(dataStore, user, dao);
+				DateTime dueByDate = DateHandler.getDateFromString(date);
+				reviewsService.createBlankSelfAssessmentFor(user, dueByDate, period);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public List<UserDAO> getDirectReports() {
+		User user = getAuthenticatedUser();
+		if (user==null) {
+			return null;
+		}
+		return getDirectReports(user);
+	}
+	
+	private List<UserDAO> getDirectReports(User user) {
+		List<User> allUsers = dataStore.getAllUsers();
+		List<UserDAO> reports = new ArrayList<UserDAO>();
+		
+		for (User next: allUsers) {
+			if (next.doesReportTo(user)) {
+				reports.add(translator.createDAO(dataStore, next));
+			}
+		}
+		return reports;
+	}
+	
+	private User getAuthenticatedUser() {
+		com.google.appengine.api.users.User currentUser = authenticator.getUser();
+		List<User> users = dataStore.getCurrentUsers();
+		
+		for (User next: users) {
+			if (next.matchesEmail(currentUser.getEmail())) {
+				return next;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public UserDAO getCurrentUser() {
+		return translator.createDAO(dataStore, getAuthenticatedUser());
 	}
 }

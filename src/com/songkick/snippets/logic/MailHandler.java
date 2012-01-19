@@ -2,6 +2,7 @@ package com.songkick.snippets.logic;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class MailHandler {
 				date = format.parseDateTime(dateString);
 				return date;
 			} catch (Exception e) {
-				System.err.println("Failed with exception: " + e);
+				System.err.println("MailHandler.formatDateFailed with exception: " + e);
 			}
 		}
 
@@ -91,9 +92,23 @@ public class MailHandler {
 		// Didn't find an existing user, so create a new one
 		Debug.log("Creating new user");
 		User newUser = new User();
+		newUser.setStartDate(DateHandler.getYesterday());
 		newUser.setEmailAddress(userEmail);
+		newUser.setOtherEmails(null);
+		newUser.addPrimaryEmail(userEmail);
 
 		dataStore.save(newUser);
+
+		// Weird hack explanation: a newly constructed User object has otherEmails
+		// set to a new, empty ArrayList<String>. But, if we persist this via
+		// objectify, it stores an empty string in the otherEmails database field.
+		// When this is read back, it causes an exception because Objectify can't
+		// interpret an empty string as an empty list. To get round this, persist
+		// the object with otherEmails set to null (which Objectify can read back
+		// correctly) then afterwards restore the empty list, so that we don't get
+		// NPEs in the code. Ugly.
+		newUser.setOtherEmails(new ArrayList<String>());
+
 		return newUser;
 	}
 }

@@ -1,21 +1,20 @@
 package com.songkick.snippets.logic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
+import org.joda.time.DateTime;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
 
 import com.google.appengine.api.taskqueue.QueueFactory;
-import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.taskqueue.dev.LocalTaskQueue;
 import com.google.appengine.api.taskqueue.dev.QueueStateInfo;
-import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalTaskQueueTestConfig;
+import com.songkick.snippets.client.model.HolidayDate;
 import com.songkick.snippets.model.ReminderEmail;
 import com.songkick.snippets.model.Snippet;
 import com.songkick.snippets.model.User;
@@ -23,34 +22,40 @@ import com.songkick.snippets.server.data.DataStorage;
 import com.songkick.snippets.server.data.DataStorageMock;
 
 public class ReminderHandlerTest {
-
-	private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
-			new LocalTaskQueueTestConfig());
-
-	@Before
-	public void setUp() {
-		helper.setUp();
-	}
-
-	@After
-	public void tearDown() {
-		helper.tearDown();
-	}
-
 	@Test
-	public void testDigest() {
-		ReminderHandler handler = new ReminderHandler();
+	/**
+	 * Test that we can detect a week that has a holiday Monday
+	 */
+	public void testHolidayMove() {
+		DateTime monday = DateHandler.getMondayOfThisWeek();
 		DataStorage dataStore = new DataStorageMock();
+		HolidayDate holiday = new HolidayDate();
+		holiday.setDate(DateHandler.formatDate(monday));
 
-		QueueFactory.getDefaultQueue().add(
-				TaskOptions.Builder.withTaskName("reminder-queue"));
+		// If there are no registered holiday Mondays, we should be able to tell
+		// that this week does not have a holiday
+		assertFalse(DateHandler.weekHasHolidayMonday(dataStore));
 
-		createUserWithSnippet(dataStore, "dancrow@songkick.com", null);
-
-		handler.sendDigest(dataStore);
-
-		checkResult();
+		// If this week's Monday is registered as a holiday Monday, we should be
+		// able to tell that this week does have a holiday
+		dataStore.save(holiday);
+		assertTrue(DateHandler.weekHasHolidayMonday(dataStore));
 	}
+
+	/*
+	 * Not currently used - can't find a way to access a *named* local task queue
+	 * 
+	 * @Test public void testDigest() { ReminderHandler handler = new
+	 * ReminderHandler(); DataStorage dataStore = new DataStorageMock();
+	 * 
+	 * QueueFactory.getQueue("reminder-queue");
+	 * 
+	 * createUserWithSnippet(dataStore, "dancrow@songkick.com", null);
+	 * 
+	 * handler.sendDigest(dataStore);
+	 * 
+	 * checkResult(); }
+	 */
 
 	private void createUserWithSnippet(DataStorage dataStore, String username,
 			String snippetString) {
