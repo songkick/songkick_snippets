@@ -92,14 +92,29 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void deleteUser(UserDAO dao) {
-		// TODO Auto-generated method stub
+		User user = getUser(dao);
+		if (user == null) {
+			Debug.log("No user found");
+			return;
+		}
 
+		Debug.log("Deleting user " + user.getBestName());
+		dataStore.delete(user);
+
+		List<Snippet> snippets = dataStore.getSnippetsForUser(user);
+
+		Debug.log("Also deleting all user snippets");
+		for (Snippet snippet : snippets) {
+			dataStore.delete(snippet);
+		}
+
+		Debug.log("Done");
 	}
 
 	@Override
 	public void remindUser(UserDAO dao) {
 		Debug.log("Reminding user " + dao.getName());
-		
+
 		boolean hasPrimary = false;
 		for (EmailAddress email : dao.getEmailAddresses()) {
 			if (email.isPrimary()) {
@@ -109,7 +124,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 				hasPrimary = true;
 			}
 		}
-		
+
 		if (!hasPrimary) {
 			Debug.log("No primary email address for " + dao);
 		}
@@ -202,6 +217,8 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		}
 
 		for (Snippet snippet : dataStore.getSnippetsForUser(user)) {
+			Debug.log("Checking snippet from week " + snippet.getWeekNumber() + ": "
+					+ snippet.getSnippetText());
 			if (snippet.getWeekNumber().equals(weekNumber)) {
 				return snippet.getSnippetText();
 			}
@@ -237,12 +254,12 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 		users.add(getUser(user));
 		reminderHandler.queueRemindersTo(users, MailType.Digest);
 	}
- 
+
 	@Override
 	public void upgradeDatabase() {
 		List<User> users = dataStore.getAllUsers();
-		
-		for (User user: users) {
+
+		for (User user : users) {
 			UserDAO dao = translator.createDAO(dataStore, user);
 			translator.updateUser(dataStore, user, dao);
 		}
@@ -255,7 +272,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void setHolidayDates(List<HolidayDate> dates) {
-		for (HolidayDate date: dates) {
+		for (HolidayDate date : dates) {
 			dataStore.save(date);
 		}
 	}
@@ -277,29 +294,29 @@ public class AdminServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public List<UserDAO> getDirectReports() {
 		User user = getAuthenticatedUser();
-		if (user==null) {
+		if (user == null) {
 			return null;
 		}
 		return getDirectReports(user);
 	}
-	
+
 	private List<UserDAO> getDirectReports(User user) {
 		List<User> allUsers = dataStore.getAllUsers();
 		List<UserDAO> reports = new ArrayList<UserDAO>();
-		
-		for (User next: allUsers) {
+
+		for (User next : allUsers) {
 			if (next.doesReportTo(user)) {
 				reports.add(translator.createDAO(dataStore, next));
 			}
 		}
 		return reports;
 	}
-	
+
 	private User getAuthenticatedUser() {
 		com.google.appengine.api.users.User currentUser = authenticator.getUser();
 		List<User> users = dataStore.getCurrentUsers();
-		
-		for (User next: users) {
+
+		for (User next : users) {
 			if (next.matchesEmail(currentUser.getEmail())) {
 				return next;
 			}

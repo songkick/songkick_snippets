@@ -61,6 +61,8 @@ public class EditSnippetsDialog extends SKDialog {
 
 		setWidget(outerPanel);
 		setText("Edit snippet for " + user.getName());
+
+		snippetTextArea.setText("Loading...");
 		
 		// Get the current week number
 		adminService.getCurrentWeek(new AsyncCallback<Long>() {
@@ -79,6 +81,7 @@ public class EditSnippetsDialog extends SKDialog {
 					weekListBox.addItem("Week " + i);
 				}
 				
+				showSnippet(result);
 				
 				weekListBox.addChangeHandler(new ChangeHandler() {
 					@Override

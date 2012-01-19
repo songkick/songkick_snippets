@@ -108,16 +108,6 @@
 		<servlet-name>userapihandler</servlet-name>
 		<url-pattern>/users</url-pattern>
 	</servlet-mapping>
-	
-	<!-- Mail handling API servlet -->
-	<servlet>
-		<servlet-name>mailapi</servlet-name>
-		<servlet-class>com.songkick.snippets.servlet.MailAPIServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>mailapi</servlet-name>
-		<url-pattern>/mailapi/*</url-pattern>
-	</servlet-mapping>
 
 	<!-- Default page to serve -->
 	<welcome-file-list>

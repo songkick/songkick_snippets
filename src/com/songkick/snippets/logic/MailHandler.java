@@ -45,12 +45,23 @@ public class MailHandler {
 		User user = getOrCreateUser(from, dataStore);
 
 		Debug.log("Got user: " + user);
-
+		
+		long weekNumber = DateHandler.getWeekNumber(formatDate(date));
+		
+		List<Snippet> snippets = dataStore.getSnippetsForUser(user);
+		
+		for (Snippet snippet: snippets) {
+			if (snippet.getWeekNumber().equals(weekNumber)) {
+				snippet.setSnippetText(snippet.getSnippetText() + "\n" + emailBody);
+				dataStore.save(snippet);
+				Debug.log("Merged snippet into existing snippet for week " + weekNumber);
+				return;
+			}
+		}
+		
 		Snippet snippet = new Snippet(user, emailBody);
-
 		snippet.setDate(date);
 		snippet.setWeekNumber(DateHandler.getWeekNumber(formatDate(date)));
-
 		Debug.log("Created snippet from email: " + snippet);
 
 		dataStore.save(snippet);
